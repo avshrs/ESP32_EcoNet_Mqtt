@@ -112,8 +112,10 @@ void prepare_conf()
     String C2 = "\"current_temperature_topic\":\"~/state/huw/temp\"," ;
     C2 += "\"mode_command_topic\":\"~/set_state/huw/pump_mode\"," ;
     C2 += "\"mode_state_topic\":\"~/state/huw/pump_mode\"," ;
-    C2 += "\"temperature_command_topic\":\"~/set_state/huw/temp\"," ;
-    C2 += "\"temperature_state_topic\":\"~/state/huw/temp_target\"," ;
+    C2 += "\"temperature_high_command_topic\":\"~/set_state/huw/temp\"," ;
+    C2 += "\"temperature_high_state_topic\":\"~/state/huw/temp_target\"," ;
+    C2 += "\"temperature_low_command_topic\":\"~/set_state/huw/temp_min\"," ;
+    C2 += "\"temperature_low_state_topic\":\"~/state/huw/temp_min_target\"," ;
     C2 += "\"min_temp\":\"45\"," ;
     C2 += "\"max_temp\":\"60\"," ;
     C2 += "\"temp_step\":\"1\"," ;
@@ -175,14 +177,30 @@ void reconnect()
             {
                 Serial.println("connected to MQTT server");
                 // MQTT subscription
-                client.subscribe("avshrs/devices/EcoNet_01/set/gate");                
-                client.subscribe("avshrs/devices/EcoNet_01/set/light");
-                client.subscribe("avshrs/devices/EcoNet_01/set/walk_in");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/room_thermostat/operating_mode");                
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/room_thermostat/night_temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/room_thermostat/day_temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/set_state/huw/pump_mode");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/huw/temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/huw/temp_min");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/room_thermostat/summer_winter_mode");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/mixer/temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/huw/temp_hysteresis");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/huw/container_disinfection");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/on_off");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/max_power_kw");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/mid_power_kw");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/min_power_kw");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/max_power_fan");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/mid_power_fan");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/min_power_fan");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/mixer/temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/room_thermostat/hysteresis");
+
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/debug");
 
                 client.subscribe("avshrs/devices/EcoNet_01/esp_led");
-
-                client.subscribe("avshrs/devices/EcoNet_01/set/delay_msg");
-                client.subscribe("avshrs/devices/EcoNet_01/set/debug");
                 prepare_conf();
 
             } 

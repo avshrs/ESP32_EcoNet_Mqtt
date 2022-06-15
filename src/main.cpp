@@ -6,8 +6,8 @@
 
 
 int d = 1; 
-unsigned long previousMillis = 0;  
-unsigned long previousMillis2 = 0;  
+unsigned long previousMillis = 60001;  
+unsigned long previousMillis2 =60001;  
 EcoNet econet;
 
 void callback(char* topic, byte* payload, unsigned int length) 
@@ -40,6 +40,10 @@ void callback(char* topic, byte* payload, unsigned int length)
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp") == 0) 
     {
         econet.set_huw_temp(st.toInt());
+    } 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_min") == 0) 
+    {
+        econet.set_huw_min_temp(st.toInt());
     } 
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/summer_winter_mode") == 0) 
     {
@@ -114,8 +118,13 @@ void callback(char* topic, byte* payload, unsigned int length)
         Serial.println("BUILTIN_LED_high");
         digitalWrite(BUILTIN_LED, HIGH); 
     }
-
-
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/debug") == 0) 
+    {
+        if (st == "1")
+            econet.debug = true;
+        else 
+            econet.debug = false;
+    } 
 }
 
 void setup() 
@@ -125,9 +134,6 @@ void setup()
     econet.init(EnTxPin);
 
     Serial.begin(1000000);
-    Serial2.begin(115200);
-    pinMode(EnTxPin, OUTPUT);  
-    digitalWrite(EnTxPin, LOW);
     pinMode(BUILTIN_LED, OUTPUT);  
     digitalWrite(BUILTIN_LED, LOW);   
     setup_wifi();
@@ -153,12 +159,10 @@ void loop()
         reconnect();
     }
     client.loop();
-    Serial.println("client");
+
     econet.run();
-    Serial.println("econet.run");
 
     econet.update_statuses(false);
-    Serial.println("econet.update_statuses");
     
     if (currentMillis - previousMillis >= 60000) 
     {
@@ -167,6 +171,7 @@ void loop()
         econet.update_statuses(true);
         snprintf (msg, MSG_BUFFER_SIZE, "true");
         client.publish("avshrs/devices/EcoNet_01/status/connected", msg);
+        Serial.println("update_statuses");
     }
 
 

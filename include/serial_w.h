@@ -15,8 +15,5 @@ class SerialW
     void serial_open(int tx_pin);
     void serial_send(std::vector<uint8_t> &tx_buffer);
     void serial_read_payload(std::vector<uint8_t> &rx_buffer, short size);  
-    void serial_read_header(std::vector<uint8_t> &rx_buffer);
+    void serial_read_header(std::vector<uint8_t> &rx_buffer, int size);
 };
-  
-
-

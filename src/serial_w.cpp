@@ -2,11 +2,12 @@
 
 void SerialW::serial_open(int tx_pin)
 {
-    Serial2.begin(19200);
+    Serial2.begin(115200);
     lead_z = 0;
-    EnTxPin = tx_pin;
+    EnTxPin = 18;
     pinMode(EnTxPin, OUTPUT);  
     digitalWrite(EnTxPin, LOW);
+    Serial2.setTimeout(100);
 }   
 
 void SerialW::serial_send(std::vector<uint8_t> &tx_buffer)
@@ -21,25 +22,26 @@ void SerialW::serial_send(std::vector<uint8_t> &tx_buffer)
     digitalWrite(EnTxPin, LOW);
 } 
 
-void SerialW::serial_read_header(std::vector<uint8_t> &rx_buffer)
+void SerialW::serial_read_header(std::vector<uint8_t> &rx_buffer,int size)
 {	
-    
-    while (Serial2.read() == 0x68){}
-    rx_buffer.push_back(0x68);
-    for (int i = 1; i < (int)rx_buffer.size(); i++)
+    uint8_t buf = Serial2.read();  
+    if(buf == 0x68)
     {
-        while(!Serial2.available()){}
-        rx_buffer.push_back(Serial2.read());
+        rx_buffer.push_back(0x68);
+        for (int i = 1; i < size; i++)
+        {
+            while(!Serial2.available()){}
+            rx_buffer.push_back(Serial2.read());
+        }
     }
+    rx_buffer.push_back(0xff);
 }
 void SerialW::serial_read_payload(std::vector<uint8_t> &rx_buffer, short size)
 {	
-    uint8_t buf = 0;
-    for (short i = 1; 0 < size - 8; i++)
+    for (short i = 0; i < size - 8; i++)
     {
         while(!Serial2.available()){}
-        buf = Serial2.read();
-        rx_buffer.push_back(buf);
+        rx_buffer.push_back(Serial2.read());
     }
 }
 

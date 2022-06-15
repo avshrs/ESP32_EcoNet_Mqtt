@@ -2,8 +2,7 @@
 
 void EcoNet::init(int tx_pin)
 {
-        serial.serial_open(tx_pin);
-        
+    serial_w.serial_open(tx_pin);
 }
 
 void EcoNet::run()
@@ -13,62 +12,97 @@ void EcoNet::run()
     payload.clear();
     message.clear();
     
-    serial.serial_read_header(header); 
-
-    Ecomax_920_Frame_Header ecomax_header = *reinterpret_cast<Ecomax_920_Frame_Header*>(header.data());
-    
-    if(ecomax_header.frame_begine == frame_begin)
+    serial_w.serial_read_header(header, 8); 
+    if(debug)   
     {
-        serial.serial_read_payload(payload, ecomax_header.frame_size);
-
-        message.insert(message.end(), header.begin(), header.end());
-        message.insert(message.end(), payload.begin(), payload.end());
+        Serial.println(buffer_to_string(header.data(), header.size()));
+        mqtt->publish("avshrs/devices/EcoNet_01/status/header", buffer_to_string(header.data(), header.size()).c_str());
+    }
+    if(header.at(0) != 0xff)
+    {
         
-        if(crc(message) == static_cast<uint8_t>(message.at(message.size()-2)))
+        
+        
+        if(header.at(0)  == frame_begin)
         {
-            if(ecomax_header.src_address == ecomax_address 
-                && ecomax_header.payload_type == ecomax_live_data_frame)
+            if(debug)
             {
-                ecomax920_payload = *reinterpret_cast<Ecomax_920_Live_Data_Frame_payload*>(payload.data());
-                update_statuses(false);
+                Serial.println("header_corectly_readed");
+                mqtt->publish("avshrs/devices/EcoNet_01/status/header_correct", "1");
             }
-            else if(ecomax_header.src_address == ecomax_address 
-                && ecomax_header.payload_type == ecomax_settings_frame)
-            {   
-                ecomax920_settings_payload = *reinterpret_cast<Ecomax_settings_Frame_payload*>(payload.data());
-                update_statuses(false);
+            Ecomax_920_Frame_Header ecomax_header = *reinterpret_cast<Ecomax_920_Frame_Header*>(header.data());    
+          
+            serial_w.serial_read_payload(payload, ecomax_header.frame_size);
+            if(debug)
+            {
+                Serial.println(buffer_to_string(payload.data(), payload.size()));
+                mqtt->publish("avshrs/devices/EcoNet_01/status/payload", buffer_to_string(payload.data(), payload.size()).c_str());
+
             }
-            else if(ecomax_header.src_address == ecoster_address
-                && ecomax_header.payload_type == ecoster_frame )
+            message.insert(message.end(), header.begin(), header.end());
+            message.insert(message.end(), payload.begin(), payload.end());
+            
+            if(crc(message) == static_cast<uint8_t>(message.at(message.size()-2)))
             {
-                ecoster_payload = *reinterpret_cast<Ecoster_Live_Data_Frame_payload*>(payload.data());
-                update_statuses(false);
-            }            
-            else if(ecomax_header.src_address == ecoster_address 
-                && ecomax_header.payload_type == ecoster_settings_frame)
-            {
-                ecoster_settings_payload = *reinterpret_cast<Ecoster_Settings_Frame_payload*>(payload.data());
-                update_statuses(false);
-            } 
-            // else if(ecomax_header.src_address == econet_address) // debug
-            // {  
-            //     // print_buffer(message.data(), message.size());
-            // }   
-            // else if(ecomax_header.src_address == 0x45 && ecomax_header.payload_type == 0x35  ) // debug
-            // {  
-            // } 
-            // else // debug 
+                if (debug)
+                {
+                    Serial.println("CRC_Correct");
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/crc", "ok");
+                }
+                if(ecomax_header.src_address == ecomax_address 
+                    && ecomax_header.payload_type == ecomax_live_data_frame)
+                {
+                    ecomax920_payload = *reinterpret_cast<Ecomax_920_Live_Data_Frame_payload*>(payload.data());
+                    update_statuses(false);
+                    if (debug)
+                    {
+                        Serial.println("ecomax_live_data_frame");
+                        mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_live_data_frame", "ok");
+                    }
+                }
+                else if(ecomax_header.src_address == ecomax_address 
+                    && ecomax_header.payload_type == ecomax_settings_frame)
+                {   
+                    ecomax920_settings_payload = *reinterpret_cast<Ecomax_settings_Frame_payload*>(payload.data());
+                    update_statuses(false);
+                    if (debug)
+                    {
+                        Serial.println("ecomax_settings_frame");
+                        mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_settings_frame", "ok");
+                    }
+                }
+                else if(ecomax_header.src_address == ecoster_address
+                    && ecomax_header.payload_type == ecoster_frame )
+                {
+                    ecoster_payload = *reinterpret_cast<Ecoster_Live_Data_Frame_payload*>(payload.data());
+                    update_statuses(false);
+                }            
+                else if(ecomax_header.src_address == ecoster_address 
+                    && ecomax_header.payload_type == ecoster_settings_frame)
+                {
+                    ecoster_settings_payload = *reinterpret_cast<Ecoster_Settings_Frame_payload*>(payload.data());
+                    update_statuses(false);
+                } 
+                // else if(ecomax_header.src_address == econet_address) // debug
+                // {  
+                //     // print_buffer(message.data(), message.size());
+                // }   
+                // else if(ecomax_header.src_address == 0x45 && ecomax_header.payload_type == 0x35  ) // debug
+                // {  
+                // } 
+                // else // debug 
+                // {
+                //     //  for debug 
+                //     //   print_buffer(message.data(), message.size());
+                // }
+                
+            }
+            // else
             // {
             //     //  for debug 
-            //     //   print_buffer(message.data(), message.size());
+            //     // print_buffer(header.data(), header.size());
             // }
-            
         }
-        // else
-        // {
-        //     //  for debug 
-        //     // print_buffer(header.data(), header.size());
-        // }
     }
 
     
@@ -134,6 +168,22 @@ String EcoNet::get_operating_status()
             return "NN";
     }
 
+}
+
+String EcoNet::buffer_to_string(uint8_t *buf, int size )
+{
+
+    String stream;
+    
+    if (size > 0)
+    {
+        for(int i =0; i<size ; i++)
+        {
+        stream +=  " 0x"+String(buf[i], HEX);
+        }
+        return stream;
+    }
+    return " ";
 }
 
 String EcoNet::get_boiler_on_off()
@@ -265,39 +315,41 @@ void EcoNet::set_huw_temp(uint8_t temp)
         buf.push_back(temp);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
         Serial.println("set_huw_temp out of range 20 - 70");
     }
 }
-void EcoNet::set_huw_pump_mode(String pump_mode)
+
+void EcoNet::set_huw_min_temp(uint8_t temp)
 {
-    if(pump_mode == "Priority" || pump_mode == "heat")
+    if(temp <= 69 && temp >=20 && temp < get_huw_temp_target().toInt() && get_huw_temp_target().toInt() > 35)
     {
-        std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, 0x01};
-        buf.push_back(crc_set(buf));
-        buf.push_back(0x16);
-        serial.serial_send(buf);
+        uint8_t target_t = get_huw_temp_target().toInt();
+        uint8_t hysteresis = target_t - temp; 
+        set_huw_temp_hysteresis(hysteresis);
     }
-    else if(pump_mode == "No_Priority" || pump_mode == "auto")
-    {
-        std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, 0x02};
-        buf.push_back(crc_set(buf));
-        buf.push_back(0x16);
-        serial.serial_send(buf);
-    }
-    else if(pump_mode == "Off"|| pump_mode == "off")
-    {
-        std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, 0x00};
-        buf.push_back(crc_set(buf));
-        buf.push_back(0x16);
-        serial.serial_send(buf);
-    }    
     else
     {
-        Serial.println("<set_huw_pump_mode out of range: priority | no_priority | off");
+        Serial.println("set_huw_temp out of range 20 - 69");
+    }
+}
+
+void EcoNet::set_huw_max_temp(uint8_t temp)
+{
+    if(temp <= 70 && temp >=20)
+    {
+        std::vector<uint8_t> buf = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05};
+        buf.push_back(temp);
+        buf.push_back(crc_set(buf));
+        buf.push_back(0x16);
+        serial_w.serial_send(buf);
+    }
+    else
+    {
+        Serial.println("set_huw_temp out of range 20 - 70");
     }
 }
 
@@ -309,13 +361,54 @@ void EcoNet::set_huw_temp_hysteresis(uint8_t hysteresis)
         buf.push_back(hysteresis);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
         Serial.println("set_huw_temp_hysteresis hysteresis out of range 1 - 30");
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+void EcoNet::set_huw_pump_mode(String pump_mode)
+{
+    if(pump_mode == "Priority" || pump_mode == "heat")
+    {
+        std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, 0x01};
+        buf.push_back(crc_set(buf));
+        buf.push_back(0x16);
+        serial_w.serial_send(buf);
+    }
+    else if(pump_mode == "No_Priority" || pump_mode == "auto")
+    {
+        std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, 0x02};
+        buf.push_back(crc_set(buf));
+        buf.push_back(0x16);
+        serial_w.serial_send(buf);
+    }
+    else if(pump_mode == "Off"|| pump_mode == "off")
+    {
+        std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, 0x00};
+        buf.push_back(crc_set(buf));
+        buf.push_back(0x16);
+        serial_w.serial_send(buf);
+    }    
+    else
+    {
+        Serial.println("<set_huw_pump_mode out of range: priority | no_priority | off");
+    }
+}
+
 void EcoNet::set_huw_container_disinfection(bool state)
 {
     if(state)
@@ -323,14 +416,14 @@ void EcoNet::set_huw_container_disinfection(bool state)
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3b, 0x01};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3b, 0x00};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);    
+        serial_w.serial_send(buf);    
     }
 }
 
@@ -341,21 +434,21 @@ void EcoNet::set_room_thermostat_summer_winter_mode(String state)
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, 0x00};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else if (state == "Summer" || state == "off")
     {
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, 0x01};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);    
+        serial_w.serial_send(buf);    
     }
     else if (state == "Auto" || state == "auto")
     {
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, 0x02};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);    
+        serial_w.serial_send(buf);    
     }
     else
     {
@@ -371,7 +464,7 @@ void EcoNet::set_boiler_temp(uint8_t temp)
         buf.push_back(temp);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -386,14 +479,14 @@ void EcoNet::set_boiler_on_off(bool state)
         std::vector<uint8_t> buf = {0x68, 0x0b, 0x00, 0x45, 0x56, 0x30, 0x05, 0x3b, 0x01 };
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
         std::vector<uint8_t> buf = {0x68, 0x0b, 0x00, 0x45, 0x56, 0x30, 0x05, 0x3b, 0x00 };
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);    }
+        serial_w.serial_send(buf);    }
 }
 
 void EcoNet::set_mixer_temp(uint8_t temp)
@@ -404,7 +497,7 @@ void EcoNet::set_mixer_temp(uint8_t temp)
         buf.push_back(temp);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -430,7 +523,7 @@ void EcoNet::set_room_thermostat_night_temp(float temp_)
         buf.push_back(uin[1]);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -454,7 +547,7 @@ void EcoNet::set_room_thermostat_day_temp(float temp_)
         buf.push_back(uin[1]);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -470,56 +563,56 @@ void EcoNet::set_room_thermostat_operating_mode(String state)
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x00};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else if (state == "Economy")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x01};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else if(state == "Comfort" || state == "heat")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x02};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else if (state == "Outside" || state == "cool")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x03};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else if (state == "Ventilation")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x04};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else if (state == "Party")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x05};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else if (state == "Holiday")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x06};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else if (state == "Frost_protection" || state == "off")
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, 0x07};
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf); 
+        serial_w.serial_send(buf); 
     }
     else
     {
@@ -535,7 +628,7 @@ void EcoNet::set_room_thermostat_hysteresis(float hysteresis)
         buf.push_back(static_cast<int>(hysteresis*10));
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -551,7 +644,7 @@ void EcoNet::set_boiler_max_power_kw(uint8_t power_kw)
         buf.push_back(power_kw);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -567,7 +660,7 @@ void EcoNet::set_boiler_mid_power_kw(uint8_t power_kw)
         buf.push_back(power_kw);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -582,7 +675,7 @@ void EcoNet::set_boiler_min_power_kw(uint8_t power_kw)
         buf.push_back(power_kw);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -597,7 +690,7 @@ void EcoNet::set_boiler_max_power_fan(uint8_t fun_max)
         buf.push_back(fun_max);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -613,7 +706,7 @@ void EcoNet::set_boiler_mid_power_fan(uint8_t fun_mid)
         buf.push_back(fun_mid);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -628,7 +721,7 @@ void EcoNet::set_boiler_min_power_fan(uint8_t fun_min)
         buf.push_back(fun_min);
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
-        serial.serial_send(buf);
+        serial_w.serial_send(buf);
     }
     else
     {
@@ -751,7 +844,7 @@ void EcoNet::update_statuses(bool force)
         mqtt->publish(String(topic + "huw/temp").c_str(), get_huw_temp().c_str());
         ecomax920_buffer.huw_temp = get_huw_temp().toFloat();
     }
-    
+
     if(force || ecomax920_buffer.operating_status != get_operating_status().toFloat())
     {
         mqtt->publish(String(topic + "boiler/operating_status").c_str(), get_operating_status().c_str());
@@ -937,6 +1030,10 @@ void EcoNet::update_statuses(bool force)
     if(force || ecomax920_settings_buffer.huw_temp_hysteresis != ecomax920_settings_payload.huw_temp_hysteresis)
     {
         mqtt->publish(String(topic + "huw/temp_hysteresis").c_str(), get_huw_temp_hysteresis().c_str());
+        
+        uint8_t min_temp = get_huw_temp_target().toInt() - get_huw_temp_hysteresis().toInt();
+
+        mqtt->publish(String(topic + "huw/temp_min_target").c_str(), String(min_temp).c_str());
         ecomax920_settings_buffer.huw_temp_hysteresis = ecomax920_settings_payload.huw_temp_hysteresis;
     }
 

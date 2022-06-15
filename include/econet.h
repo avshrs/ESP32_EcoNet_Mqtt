@@ -9,7 +9,7 @@ class Mqtt_Client;
 
 class EcoNet{
     private:
-        SerialW serial;
+        SerialW serial_w;
         PubSubClient *mqtt;
          std::vector<uint8_t> header;
          std::vector<uint8_t> payload;
@@ -50,6 +50,7 @@ class EcoNet{
 
      
     public:
+        bool debug = false;
         void init(int tx_pin);
         void run();
         void register_mqtt(PubSubClient *mqtt_);
@@ -108,9 +109,13 @@ class EcoNet{
         String get_room_thermostat_day_temp();
         String get_room_thermostat_operating_mode();
         String get_room_thermostat_hysteresis();
+        String buffer_to_string(uint8_t *buf, int size );
+
 
     public:
         void set_huw_temp(uint8_t temp);
+        void set_huw_min_temp(uint8_t temp);
+        void set_huw_max_temp(uint8_t temp);
         void set_huw_pump_mode(String pump_mode);
         void set_huw_temp_hysteresis(uint8_t hysteresis);
         void set_huw_container_disinfection(bool state);
