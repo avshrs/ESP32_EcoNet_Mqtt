@@ -2,16 +2,13 @@
 #include <Wire.h>
 #include "passwd.h"
 #include "wifi_mqtt.h"
-#include "hoermann.h"
-
+#include "econet.h"
 
 
 int d = 1; 
 unsigned long previousMillis = 0;  
 unsigned long previousMillis2 = 0;  
-Hoermann hoermann; 
-String state = "n/a";
-
+EcoNet econet;
 
 void callback(char* topic, byte* payload, unsigned int length) 
 {
@@ -24,65 +21,95 @@ void callback(char* topic, byte* payload, unsigned int length)
         st +=(char)payload[i];
     }
     Serial.println();
-    
-    if (strcmp(topic,"avshrs/devices/hormann_gate_01/set/gate") == 0)  
-    {   
-        if (st == "open" || st == "OPEN" || st == "ON")
-        {
-            hoermann.gate_open();
-        }
-        else if (st == "close" || st == "CLOSE" || st == "OFF" )
-        {
-            hoermann.gate_close();
-        }
-        else if (st == "stop" || st == "STOP"  )
-        {
-            hoermann.gate_stop();
-        }    
-        else if (st == "walk_in" || st == "WALK_IN"  )
-        {
-            hoermann.gate_walk_in();
-        } 
-        else if (st == "press" || st == "PRESS"  )
-        {
-            hoermann.gate_toggle_light();
-        }  
+    if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/operating_mode") == 0) 
+    {
+        econet.set_room_thermostat_operating_mode(st);
     } 
-    else if (strcmp(topic,"avshrs/devices/hormann_gate_01/set/walk_in") == 0)  
-    {   
-        if (st == "walk_in" || st == "WALK_IN"|| st == "ON" )
-        {
-            hoermann.gate_walk_in();
-        }
-        else if (st == "close" || st == "CLOSE" || st == "OFF" )
-        {
-            hoermann.gate_close();
-        }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/night_temp") == 0) 
+    {
+        econet.set_room_thermostat_night_temp(st.toFloat());
     } 
-    else if (strcmp(topic,"avshrs/devices/hormann_gate_01/set/light") == 0)  
-    {   
-        if (st == "PRESS" )
-        {
-            hoermann.gate_toggle_light();
-        }   
-    }    
-    else if (strcmp(topic,"avshrs/devices/hormann_gate_01/set/debug") == 0)  
-    {   
-        hoermann.enable_debug(atoi((char *)payload));
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/day_temp") == 0) 
+    {
+        econet.set_room_thermostat_day_temp(st.toFloat());
     }
-    else if (strcmp(topic,"avshrs/devices/hormann_gate_01/set/delay_msg") == 0)  
-    {   
-        Serial.print("delay_msg: ");
-        Serial.println(st);
-        hoermann.set_delay(st.toInt());
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/set_state/huw/pump_mode") == 0) 
+    {
+        econet.set_huw_pump_mode(st);
     } 
-
-    else if (strcmp(topic,"avshrs/devices/hormann_gate_01/esp_led") == 0 && (char)payload[0] == '1') 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp") == 0) 
+    {
+        econet.set_huw_temp(st.toInt());
+    } 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/summer_winter_mode") == 0) 
+    {
+        econet.set_room_thermostat_summer_winter_mode(st);
+    } 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/mixer/temp") == 0) 
+    {
+        econet.set_mixer_temp(st.toInt());
+    } 
+    
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_hysteresis") == 0) 
+    {
+        econet.set_huw_temp_hysteresis(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/container_disinfection") == 0) 
+    {
+        if(st == "ON")
+            econet.set_huw_container_disinfection(true);
+        else if(st == "OFF")
+            econet.set_huw_container_disinfection(false);
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/temp") == 0) 
+    {
+        econet.set_boiler_temp(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/on_off") == 0) 
+    {
+        if(st == "ON")
+            econet.set_boiler_on_off(true);
+        else if(st == "OFF")
+            econet.set_boiler_on_off(false);
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/max_power_kw") == 0) 
+    {
+        econet.set_boiler_max_power_kw(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/mid_power_kw") == 0) 
+    {
+        econet.set_boiler_mid_power_kw(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/min_power_kw") == 0) 
+    {
+        econet.set_boiler_min_power_kw(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/max_power_fan") == 0) 
+    {
+        econet.set_boiler_max_power_fan(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/mid_power_fan") == 0) 
+    {
+        econet.set_boiler_mid_power_fan(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/min_power_fan") == 0) 
+    {
+        econet.set_boiler_min_power_fan(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/mixer/temp") == 0) 
+    {
+        econet.set_mixer_temp(st.toInt());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/hysteresis") == 0) 
+    {
+        econet.set_room_thermostat_hysteresis(st.toFloat());
+    }
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/esp_led") == 0 && (char)payload[0] == '1') 
     {
         Serial.println("BUILTIN_LED_low");
         digitalWrite(BUILTIN_LED, LOW);   
     } 
-    else if (strcmp(topic,"avshrs/devices/hormann_gate_01/esp_led") == 0 && (char)payload[0] == '0') 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/esp_led") == 0 && (char)payload[0] == '0') 
     {
         Serial.println("BUILTIN_LED_high");
         digitalWrite(BUILTIN_LED, HIGH); 
@@ -95,10 +122,10 @@ void setup()
 {
     int EnTxPin =  18;
     Wire.begin();
-    hoermann.init(EnTxPin);
+    econet.init(EnTxPin);
 
     Serial.begin(1000000);
-    
+    Serial2.begin(115200);
     pinMode(EnTxPin, OUTPUT);  
     digitalWrite(EnTxPin, LOW);
     pinMode(BUILTIN_LED, OUTPUT);  
@@ -108,65 +135,13 @@ void setup()
     client.setServer(mqtt_server, 1883);
     client.setBufferSize(1024);
     client.setCallback(callback);
+    
     reconnect();
+    econet.register_mqtt(&client);
+    
+    init_config();
     prepare_conf();
-}
-
-void gate_position(boolean force)
-{
-    if (state != hoermann.get_state() || force ) 
-    {
-        state = hoermann.get_state();
-        
-        if (state == "open")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", state.c_str());
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "ON");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", state.c_str());
-        }
-        else if (state == "opening")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", state.c_str());
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "ON");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", state.c_str());
-        }
-        else if (state == "closed")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", state.c_str());
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "OFF");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", state.c_str());
-        }
-        else if (state == "closing")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", state.c_str());
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "OFF");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", state.c_str());
-        }
-        else if (state == "stoped")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", "open");
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "on");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", state.c_str());
-        }
-        else if (state == "walk_in")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", "open");
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "ON");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", "walk_in");
-        }
-        else if (state == "closing_error")
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", "open");
-            client.publish("avshrs/devices/hormann_gate_01/state/walk_in", "ON");
-            client.publish("avshrs/devices/hormann_gate_01/state/state", "closing_error");
-        }
-        else
-        {
-            client.publish("avshrs/devices/hormann_gate_01/state/gate", hoermann.get_state().c_str());
-        }
-        String data = "hex state: " + hoermann.get_state_hex();
-        client.publish("avshrs/devices/hormann_gate_01/status/gate", data.c_str());
-    }
+    client.publish("avshrs/devices/EcoNet_01/state/light", "OFF");
 }
 
 void loop() 
@@ -178,35 +153,22 @@ void loop()
         reconnect();
     }
     client.loop();
-    hoermann.run_loop();
+    Serial.println("client");
+    econet.run();
+    Serial.println("econet.run");
+
+    econet.update_statuses(false);
+    Serial.println("econet.update_statuses");
     
     if (currentMillis - previousMillis >= 60000) 
     {
         previousMillis = currentMillis;
-
         wifi_status();
-
+        econet.update_statuses(true);
         snprintf (msg, MSG_BUFFER_SIZE, "true");
-        client.publish("avshrs/devices/hormann_gate_01/status/connected", msg);
-
-        client.publish("avshrs/devices/hormann_gate_01/status/master_sending_broadcast", hoermann.is_broadcast_recv().c_str());
-        hoermann.reset_broadcast();
-
-        client.publish("avshrs/devices/hormann_gate_01/status/master_is_scanning", hoermann.is_scanning().c_str());
-        hoermann.reset_scanning();
-
-        client.publish("avshrs/devices/hormann_gate_01/status/response_to_master", hoermann.is_connected().c_str());
-        hoermann.reset_connected();
-
-        snprintf (msg, MSG_BUFFER_SIZE, "%i", hoermann.get_scan_resp_time());
-        client.publish("avshrs/devices/hormann_gate_01/status/scan_resp_time", msg);
-        
-        snprintf (msg, MSG_BUFFER_SIZE, "%i", hoermann.get_req_resp_time());
-        client.publish("avshrs/devices/hormann_gate_01/status/req_resp_time", msg);
-        client.publish("avshrs/devices/hormann_gate_01/state/light", "OFF");
-        gate_position(true);        
+        client.publish("avshrs/devices/EcoNet_01/status/connected", msg);
     }
 
-    gate_position(false);        
+
     
 }
