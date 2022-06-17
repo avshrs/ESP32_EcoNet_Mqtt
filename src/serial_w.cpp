@@ -24,8 +24,8 @@ void SerialW::serial_send(std::vector<uint8_t> &tx_buffer)
 
 void SerialW::serial_read_header(std::vector<uint8_t> &rx_buffer,int size)
 {	
-    uint8_t buf = Serial2.read();  
-    if(buf == 0x68)
+    while(!Serial2.available()){}
+    if(Serial2.read() == 0x68)
     {
         rx_buffer.push_back(0x68);
         for (int i = 1; i < size; i++)
@@ -34,7 +34,8 @@ void SerialW::serial_read_header(std::vector<uint8_t> &rx_buffer,int size)
             rx_buffer.push_back(Serial2.read());
         }
     }
-    rx_buffer.push_back(0xff);
+    else
+        rx_buffer.push_back(0xff);
 }
 void SerialW::serial_read_payload(std::vector<uint8_t> &rx_buffer, short size)
 {	

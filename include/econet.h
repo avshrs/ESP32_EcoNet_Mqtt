@@ -110,6 +110,7 @@ class EcoNet{
         String get_room_thermostat_operating_mode();
         String get_room_thermostat_hysteresis();
         String buffer_to_string(uint8_t *buf, int size );
+        String buffer_to_string(uint8_t buf );
 
 
     public:

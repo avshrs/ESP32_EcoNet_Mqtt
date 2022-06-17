@@ -18,92 +18,103 @@ void EcoNet::run()
         Serial.println(buffer_to_string(header.data(), header.size()));
         mqtt->publish("avshrs/devices/EcoNet_01/status/header", buffer_to_string(header.data(), header.size()).c_str());
     }
-    if(header.at(0) != 0xff)
+    if(header.front()  == frame_begin)
     {
-        
-        
-        
-        if(header.at(0)  == frame_begin)
+        if(debug)
         {
-            if(debug)
-            {
-                Serial.println("header_corectly_readed");
-                mqtt->publish("avshrs/devices/EcoNet_01/status/header_correct", "1");
-            }
-            Ecomax_920_Frame_Header ecomax_header = *reinterpret_cast<Ecomax_920_Frame_Header*>(header.data());    
-          
-            serial_w.serial_read_payload(payload, ecomax_header.frame_size);
-            if(debug)
-            {
-                Serial.println(buffer_to_string(payload.data(), payload.size()));
-                mqtt->publish("avshrs/devices/EcoNet_01/status/payload", buffer_to_string(payload.data(), payload.size()).c_str());
+            Serial.println("header_corectly_readed");
+            mqtt->publish("avshrs/devices/EcoNet_01/status/header_correct", "1");
+        }
+        Ecomax_920_Frame_Header ecomax_header = *reinterpret_cast<Ecomax_920_Frame_Header*>(header.data());    
+        
+        serial_w.serial_read_payload(payload, ecomax_header.frame_size);
 
-            }
-            message.insert(message.end(), header.begin(), header.end());
-            message.insert(message.end(), payload.begin(), payload.end());
-            
-            if(crc(message) == static_cast<uint8_t>(message.at(message.size()-2)))
+        if(debug)
+        {
+            Serial.println(buffer_to_string(payload.data(), payload.size()));
+            mqtt->publish("avshrs/devices/EcoNet_01/status/payload", buffer_to_string(payload.data(), payload.size()).c_str());
+            mqtt->publish("avshrs/devices/EcoNet_01/status/mesage_end_sign", buffer_to_string(payload.back()).c_str());
+
+        }
+        message.insert(message.end(), header.begin(), header.end());
+        message.insert(message.end(), payload.begin(), payload.end());
+        if(debug)
+        {
+            Serial.println(buffer_to_string(message.data(), message.size()));
+            mqtt->publish("avshrs/devices/EcoNet_01/status/message", buffer_to_string(message.data(), message.size()).c_str());
+
+        }
+        if(crc(message) == static_cast<uint8_t>(message.at(message.size()-2)))
+        {
+            if (debug)
             {
+                Serial.println("CRC_Correct");
+                mqtt->publish("avshrs/devices/EcoNet_01/status/crc", "ok");
+            }
+            if(ecomax_header.src_address == ecomax_address 
+                && ecomax_header.payload_type == ecomax_live_data_frame)
+            {
+                ecomax920_payload = *reinterpret_cast<Ecomax_920_Live_Data_Frame_payload*>(payload.data());
+                update_statuses(false);
                 if (debug)
                 {
-                    Serial.println("CRC_Correct");
-                    mqtt->publish("avshrs/devices/EcoNet_01/status/crc", "ok");
+                    Serial.println("ecomax_live_data_frame");
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_live_data_frame", "ok");
                 }
-                if(ecomax_header.src_address == ecomax_address 
-                    && ecomax_header.payload_type == ecomax_live_data_frame)
-                {
-                    ecomax920_payload = *reinterpret_cast<Ecomax_920_Live_Data_Frame_payload*>(payload.data());
-                    update_statuses(false);
-                    if (debug)
-                    {
-                        Serial.println("ecomax_live_data_frame");
-                        mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_live_data_frame", "ok");
-                    }
-                }
-                else if(ecomax_header.src_address == ecomax_address 
-                    && ecomax_header.payload_type == ecomax_settings_frame)
-                {   
-                    ecomax920_settings_payload = *reinterpret_cast<Ecomax_settings_Frame_payload*>(payload.data());
-                    update_statuses(false);
-                    if (debug)
-                    {
-                        Serial.println("ecomax_settings_frame");
-                        mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_settings_frame", "ok");
-                    }
-                }
-                else if(ecomax_header.src_address == ecoster_address
-                    && ecomax_header.payload_type == ecoster_frame )
-                {
-                    ecoster_payload = *reinterpret_cast<Ecoster_Live_Data_Frame_payload*>(payload.data());
-                    update_statuses(false);
-                }            
-                else if(ecomax_header.src_address == ecoster_address 
-                    && ecomax_header.payload_type == ecoster_settings_frame)
-                {
-                    ecoster_settings_payload = *reinterpret_cast<Ecoster_Settings_Frame_payload*>(payload.data());
-                    update_statuses(false);
-                } 
-                // else if(ecomax_header.src_address == econet_address) // debug
-                // {  
-                //     // print_buffer(message.data(), message.size());
-                // }   
-                // else if(ecomax_header.src_address == 0x45 && ecomax_header.payload_type == 0x35  ) // debug
-                // {  
-                // } 
-                // else // debug 
-                // {
-                //     //  for debug 
-                //     //   print_buffer(message.data(), message.size());
-                // }
-                
             }
-            // else
+            else if(ecomax_header.src_address == ecomax_address 
+                && ecomax_header.payload_type == ecomax_settings_frame)
+            {   
+                ecomax920_settings_payload = *reinterpret_cast<Ecomax_settings_Frame_payload*>(payload.data());
+                update_statuses(false);
+                if (debug)
+                {
+                    Serial.println("ecomax_settings_frame");
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_settings_frame", "ok");
+                }
+            }
+            else if(ecomax_header.src_address == ecoster_address
+                && ecomax_header.payload_type == ecoster_frame )
+            {
+                ecoster_payload = *reinterpret_cast<Ecoster_Live_Data_Frame_payload*>(payload.data());
+                update_statuses(false);
+            }            
+            else if(ecomax_header.src_address == ecoster_address 
+                && ecomax_header.payload_type == ecoster_settings_frame)
+            {
+                ecoster_settings_payload = *reinterpret_cast<Ecoster_Settings_Frame_payload*>(payload.data());
+                update_statuses(false);
+            } 
+            // else if(ecomax_header.src_address == econet_address) // debug
+            // {  
+            //     // print_buffer(message.data(), message.size());
+            // }   
+            // else if(ecomax_header.src_address == 0x45 && ecomax_header.payload_type == 0x35  ) // debug
+            // {  
+            // } 
+            // else // debug 
             // {
             //     //  for debug 
-            //     // print_buffer(header.data(), header.size());
+            //     //   print_buffer(message.data(), message.size());
             // }
+            
+        }
+        else
+        {
+            if (debug)
+            {
+                Serial.println("wrong crc");
+                mqtt->publish("avshrs/devices/EcoNet_01/status/crc", "not ok");
+            }
         }
     }
+        
+    else
+        if(debug)
+        {
+            Serial.println("header_not_corectly_readed");
+            mqtt->publish("avshrs/devices/EcoNet_01/status/header_correct", "0");
+        }
 
     
 }
@@ -168,6 +179,11 @@ String EcoNet::get_operating_status()
             return "NN";
     }
 
+}
+String EcoNet::buffer_to_string(uint8_t buf )
+{
+    return String(buf, HEX);
+     
 }
 
 String EcoNet::buffer_to_string(uint8_t *buf, int size )
@@ -356,7 +372,7 @@ void EcoNet::set_huw_max_temp(uint8_t temp)
 void EcoNet::set_huw_temp_hysteresis(uint8_t hysteresis)
 {
     if(hysteresis <= 30 && hysteresis >= 1)
-    {
+    {   
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3a};
         buf.push_back(hysteresis);
         buf.push_back(crc_set(buf));
