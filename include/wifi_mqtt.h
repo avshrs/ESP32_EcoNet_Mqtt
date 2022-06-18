@@ -18,7 +18,7 @@ String IpAddress2String(const IPAddress& ipAddress)
 }
 
 unsigned long old_mils = 60000;
-struct Sensors{
+struct Sensors_Get{
     String unique_name;
     String name;
     String state_topic;
@@ -27,54 +27,86 @@ struct Sensors{
     
 } ;
 
-Sensors sensors[50];
+struct Sensors_Set{
+    String unique_name;
+    String name;
+    String state_topic;
+    String command_topic;
+    String min;
+    String max;
+    String step;
+    String unit_of_measurement;
+    String icon;
+    
+} ;
+
+Sensors_Get sensors_get[50];
+Sensors_Set sensors_set[10];
 
 void init_config()
 {
-sensors[0] = {"ecoNet_get_operating_status", "Status Palnika",                  "boiler/operating_status", "none", "none"};
-sensors[1] = {"ecoNet_get_huw_temp", "Ciepła woda",                             "huw/temp", "°C", "mdi:thermometer",  };
-sensors[2] = {"ecoNet_get_upper_buffer_temp", "Ciepła woda top",                "huw/upper_buffer_temp", "°C", "mdi:thermometer" };
-sensors[3] = {"ecoNet_get_lower_buffer_temp", "Ciepła woda bottom",             "huw/lower_buffer_temp", "°C", "mdi:thermometer"};
-sensors[4] = {"ecoNet_get_feeder_temp", "Podajnik temperatura",                 "boiler/feeder_temp", "°C", "mdi:thermometer"};
-sensors[5] = {"ecoNet_get_boiler_temp", "Piec temperatura",                     "boiler/boiler_temp", "°C", "mdi:thermometer"};
-sensors[6] = {"ecoNet_get_weather_temp", "Czujnik pogodowy",                    "weather_temp", "°C", "mdi:thermometer"};
-sensors[7] = {"ecoNet_get_exhaust_temp", "Spaliny temperatura",                 "boiler/exhaust_temp", "°C", "mdi:thermometer"};
-sensors[8] = {"ecoNet_get_mixer_temp", "Zasilanie na Grzejniki temperatura",    "mixer/temp", "°C", "mdi:thermometer"};
-sensors[9] = {"ecoNet_get_boiler_return_temp", "Powrót do Pieca temperatura",   "boiler/return_temp", "°C", "mdi:thermometer"};
-sensors[10] = {"ecoNet_get_flame_sensor", "Czujnik Płomienia",                  "boiler/flame_sensor", "%", "mdi:fire"};
-sensors[11] = {"ecoNet_get_ecoster_home_temp", "Dom temperatura", "room_thermostat/ecoster_home_temp", "°C", "mdi:thermometer"};
-sensors[12] = {"ecoNet_get_ecoster_home_temp_target", "Dom zadana temperatura", "room_thermostat/ecoster_home_temp_target", "°C", "mdi:thermometer"};
-sensors[13] = {"ecoNet_get_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "°C", "mdi:thermometer"};
-sensors[14] = {"ecoNet_get_boiler_temp_target", "Piec zadana temperatura", "boiler/temp_target", "°C", "mdi:thermometer"};
-sensors[15] = {"ecoNet_get_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "°C", "mdi:thermometer"};
-sensors[16] = {"ecoNet_get_fuel_level", "Poziom paliwa", "boiler/fuel_level", "%", "mdi:fuel"};
-sensors[17] = {"ecoNet_get_fan_out_power", "Wiatrak wyciągowy", "boiler/fan_out_power", "%", "mdi:fan"};
-sensors[18] = {"ecoNet_get_fan_in_power", "Nadmuch pieca", "boiler/fan_in_power", "%", "mdi:fan"};
-sensors[19] = {"ecoNet_get_huw_pomp_state", "Pompa Ciepłej wody", "huw/pomp_state", "none", "none"};
-sensors[20] = {"ecoNet_get_boiler_pomp_state", "Pompa Pieca", "boiler/pomp_state", "none", "none"};
-sensors[21] = {"ecoNet_get_fuel_stream", "Strumień paliwa", "boiler/fuel_stream", "kg/h", "mdi:fuel"};
-sensors[22] = {"ecoNet_get_boiler_power_kw", "Moc pieca", "boiler/boiler_power_kw", "kW", "mdi:fire"};
-sensors[23] = {"ecoNet_get_power_max_time", "Palink czas pracy na max mocy", "boiler/power_max_time", "h", "mdi:fire"};
-sensors[24] = {"ecoNet_get_power_medium_time", "Palink czas pracy na mid mocy", "boiler/power_medium_time", "h", "mdi:fire"};
-sensors[25] = {"ecoNet_get_power_min_time", "Palink czas pracy na min mocy", "boiler/power_min_time", "h", "mdi:fire"};
-sensors[26] = {"ecoNet_get_feeder_time", "Podajnik czas pracy", "boiler/feeder_time",  "h", "mdi:fire"};
-sensors[27] = {"ecoNet_get_ignitions", "Rozpalenia", "boiler/ignitions", "", "mdi:fire"};
-sensors[28] = {"ecoNet_get_ignitions_fails", "Rozpalenia nieudane", "boiler/ignitions_fails", "", "mdi:fire"};
-sensors[29] = {"ecoNet_get_huw_pump_mode", "Tryb pracy Ciepłej wody", "huw/pump_mode", "", "mdi:fire"};
-sensors[30] = {"ecoNet_get_huw_temp_hysteresis", "Ciepł Woda Histereza", "huw/temp_hysteresis", "°C", "mdi:thermometer"};
-sensors[31] = {"ecoNet_get_huw_container_disinfection", "Ciepła woda Sterylizacja Bojlera", "huw/container_disinfection", "none", "none"};
-sensors[32] = {"ecoNet_get_boiler_max_power_kw", "Palnik Max Moc", "boiler/max_power_kw", "kW", "mdi:fire"};
-sensors[33] = {"ecoNet_get_boiler_mid_power_kw", "Palnik Mid Moc", "boiler/mid_power_kw", "kW", "mdi:fire"};
-sensors[34] = {"ecoNet_get_boiler_min_power_kw", "Palnik Min Moc", "boiler/min_power_kw", "kW", "mdi:fire"};
-sensors[35] = {"ecoNet_get_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_fan", "%", "mdi:fan"};
-sensors[36] = {"ecoNet_get_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_fan", "%", "mdi:fan"};
-sensors[37] = {"ecoNet_get_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_fan", "%", "mdi:fan"};
-sensors[38] = {"ecoNet_get_room_thermostat_summer_winter_mode", "Palnik Tryb pracy", "room_thermostat/summer_winter_mode", "", "mdi:fire"};
-sensors[39] = {"ecoNet_get_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "°C", "mdi:fire"};
-sensors[40] = {"ecoNet_get_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "°C", "mdi:fire"};
-sensors[41] = {"ecoNet_get_room_thermostat_operating_mode", "Termostat tryb pracy", "room_thermostat/operating_mode", "", "mdi:fire"};
-sensors[42] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
+sensors_get[0] = {"ecoNet_get_operating_status", "Status Palnika",                  "boiler/operating_status", "none", "none"};
+sensors_get[1] = {"ecoNet_get_huw_temp", "Ciepła woda",                             "huw/temp", "°C", "mdi:thermometer",  };
+sensors_get[2] = {"ecoNet_get_upper_buffer_temp", "Ciepła woda top",                "huw/upper_buffer_temp", "°C", "mdi:thermometer" };
+sensors_get[3] = {"ecoNet_get_lower_buffer_temp", "Ciepła woda bottom",             "huw/lower_buffer_temp", "°C", "mdi:thermometer"};
+sensors_get[4] = {"ecoNet_get_feeder_temp", "Podajnik temperatura",                 "boiler/feeder_temp", "°C", "mdi:thermometer"};
+sensors_get[5] = {"ecoNet_get_boiler_temp", "Piec temperatura",                     "boiler/boiler_temp", "°C", "mdi:thermometer"};
+sensors_get[6] = {"ecoNet_get_weather_temp", "Czujnik pogodowy",                    "weather_temp", "°C", "mdi:thermometer"};
+sensors_get[7] = {"ecoNet_get_exhaust_temp", "Spaliny temperatura",                 "boiler/exhaust_temp", "°C", "mdi:thermometer"};
+sensors_get[8] = {"ecoNet_get_mixer_temp", "Zasilanie na Grzejniki temperatura",    "mixer/temp", "°C", "mdi:thermometer"};
+sensors_get[9] = {"ecoNet_get_boiler_return_temp", "Powrót do Pieca temperatura",   "boiler/return_temp", "°C", "mdi:thermometer"};
+sensors_get[10] = {"ecoNet_get_flame_sensor", "Czujnik Płomienia",                  "boiler/flame_sensor", "%", "mdi:fire"};
+sensors_get[11] = {"ecoNet_get_ecoster_home_temp", "Dom temperatura", "room_thermostat/ecoster_home_temp", "°C", "mdi:thermometer"};
+sensors_get[12] = {"ecoNet_get_ecoster_home_temp_target", "Dom zadana temperatura", "room_thermostat/ecoster_home_temp_target", "°C", "mdi:thermometer"};
+sensors_get[13] = {"ecoNet_get_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "°C", "mdi:thermometer"};
+sensors_get[14] = {"ecoNet_get_boiler_temp_target", "Piec zadana temperatura", "boiler/temp_target", "°C", "mdi:thermometer"};
+sensors_get[15] = {"ecoNet_get_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "°C", "mdi:thermometer"};
+sensors_get[16] = {"ecoNet_get_fuel_level", "Poziom paliwa", "boiler/fuel_level", "%", "mdi:fuel"};
+sensors_get[17] = {"ecoNet_get_fan_out_power", "Wiatrak wyciągowy", "boiler/fan_out_power", "%", "mdi:fan"};
+sensors_get[18] = {"ecoNet_get_fan_in_power", "Nadmuch pieca", "boiler/fan_in_power", "%", "mdi:fan"};
+sensors_get[19] = {"ecoNet_get_huw_pomp_state", "Pompa Ciepłej wody", "huw/pomp_state", "none", "none"};
+sensors_get[20] = {"ecoNet_get_boiler_pomp_state", "Pompa Pieca", "boiler/pomp_state", "none", "none"};
+sensors_get[21] = {"ecoNet_get_fuel_stream", "Strumień paliwa", "boiler/fuel_stream", "kg/h", "mdi:fuel"};
+sensors_get[22] = {"ecoNet_get_boiler_power_kw", "Moc pieca", "boiler/boiler_power_kw", "kW", "mdi:fire"};
+sensors_get[23] = {"ecoNet_get_power_max_time", "Palink czas pracy na max mocy", "boiler/power_max_time", "h", "mdi:fire"};
+sensors_get[24] = {"ecoNet_get_power_medium_time", "Palink czas pracy na mid mocy", "boiler/power_medium_time", "h", "mdi:fire"};
+sensors_get[25] = {"ecoNet_get_power_min_time", "Palink czas pracy na min mocy", "boiler/power_min_time", "h", "mdi:fire"};
+sensors_get[26] = {"ecoNet_get_feeder_time", "Podajnik czas pracy", "boiler/feeder_time",  "h", "mdi:fire"};
+sensors_get[27] = {"ecoNet_get_ignitions", "Rozpalenia", "boiler/ignitions", "", "mdi:fire"};
+sensors_get[28] = {"ecoNet_get_ignitions_fails", "Rozpalenia nieudane", "boiler/ignitions_fails", "", "mdi:fire"};
+sensors_get[29] = {"ecoNet_get_huw_pump_mode", "Tryb pracy Ciepłej wody", "huw/pump_mode", "", "mdi:fire"};
+sensors_get[30] = {"ecoNet_get_huw_temp_hysteresis", "Ciepł Woda Histereza", "huw/temp_hysteresis", "°C", "mdi:thermometer"};
+sensors_get[31] = {"ecoNet_get_huw_container_disinfection", "Ciepła woda Sterylizacja Bojlera", "huw/container_disinfection", "none", "none"};
+sensors_get[32] = {"ecoNet_get_boiler_max_power_kw", "Palnik Max Moc", "boiler/max_power_kw", "kW", "mdi:fire"};
+sensors_get[33] = {"ecoNet_get_boiler_mid_power_kw", "Palnik Mid Moc", "boiler/mid_power_kw", "kW", "mdi:fire"};
+sensors_get[34] = {"ecoNet_get_boiler_min_power_kw", "Palnik Min Moc", "boiler/min_power_kw", "kW", "mdi:fire"};
+sensors_get[35] = {"ecoNet_get_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_fan", "%", "mdi:fan"};
+sensors_get[36] = {"ecoNet_get_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_fan", "%", "mdi:fan"};
+sensors_get[37] = {"ecoNet_get_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_fan", "%", "mdi:fan"};
+sensors_get[38] = {"ecoNet_get_room_thermostat_summer_winter_mode", "Palnik Tryb pracy", "room_thermostat/summer_winter_mode", "", "mdi:fire"};
+sensors_get[39] = {"ecoNet_get_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "°C", "mdi:fire"};
+sensors_get[40] = {"ecoNet_get_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "°C", "mdi:fire"};
+sensors_get[41] = {"ecoNet_get_room_thermostat_operating_mode", "Termostat tryb pracy", "room_thermostat/operating_mode", "", "mdi:fire"};
+sensors_get[42] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
+sensors_get[43] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
+sensors_get[44] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
+
+sensors_set[0] = {"ecoNet_set_huw_temp_hysteresis", "Termostat Histereza", "huw/temp_hysteresis", "huw/temp_hysteresis", "0", "15", "1", "°C", "mdi:thermometer"};
+sensors_set[1] = {"ecoNet_set_boiler_temp_target", "Piec zadana temperatura", "boiler/temp_target", "boiler/temp_target","20", "75", "1", "°C", "mdi:thermometer"};
+sensors_set[2] = {"ecoNet_set_huw_temp", "Ciepła woda", "huw/temp", "huw/temp", "20", "70", "1",  "°C", "mdi:thermometer"};
+sensors_set[3] = {"ecoNet_set_boiler_max_power_kw", "Palnik Max Moc", "boiler/max_power_kw", "boiler/max_power_kw", "4", "18", "1",  "kW", "mdi:fire"};
+sensors_set[4] = {"ecoNet_set_boiler_min_power_kw", "Palnik Mid Moc", "boiler/mid_power_kw", "boiler/mid_power_kw", "5", "18", "1",  "kW", "mdi:fire"};
+sensors_set[5] = {"ecoNet_set_boiler_min_power_kw", "Palnik Min Moc", "boiler/min_power_kw", "boiler/min_power_kw", "2", "12", "1",  "kW", "mdi:fire"};
+sensors_set[6] = {"ecoNet_set_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_kw", "boiler/max_power_kw", "15", "60", "1",  "%", "mdi:fan"};
+sensors_set[7] = {"ecoNet_set_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_kw", "boiler/mid_power_kw", "15", '35', "1",  "%", "mdi:fan"};
+sensors_set[8] = {"ecoNet_set_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_kw", "boiler/min_power_kw", "15", "35", "1",  "%", "mdi:fan"};
+sensors_set[9] = {"ecoNet_set_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "mixer/temp_target", '15', "65", "1",  "%", "mdi:fan"};
+sensors_set[10] = {"ecoNet_set_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "room_thermostat/night_temp", "15", "25", "0.1",  "%", "mdi:fan"};
+sensors_set[11] = {"ecoNet_set_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "room_thermostat/day_temp", "15", "25", "0.1",  "%", "mdi:fan"};
+sensors_set[12] = {"ecoNet_get_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "huw/temp_target", "20", "70", "1",  "%", "mdi:fan"};
+sensors_set[13] = {"ecoNet_get_huw_temp_min_target", "Cepła woda min zadana temperaturaatura", "huw/temp_min_target", "huw/temp_min", "15", "25", "0.1",  "%", "mdi:fan"};
 }
+
 
 
 
@@ -142,21 +174,24 @@ void prepare_conf()
 
     for (int i =0 ; i < 43 ; i++)
     {
-        String s1 = "\"state_topic\":\"~/state/" + sensors[i].state_topic + "\"";
-        if (sensors[i].unit_of_measurement !="none")
+        String s1 = "\"state_topic\":\"~/state/" + sensors_get[i].state_topic + "\"";
+        if (sensors_get[i].unit_of_measurement !="none")
         {
-            s1 += ",\"unit_of_measurement\":\"" + sensors[i].unit_of_measurement +"\"";
+            s1 += ",\"unit_of_measurement\":\"" + sensors_get[i].unit_of_measurement +"\"";
         }
-        if (sensors[i].icon !="none")
+        if (sensors_get[i].icon !="none")
         {
-            s1 += ",\"icon\":\""+ sensors[i].icon +"\"";
+            s1 += ",\"icon\":\""+ sensors_get[i].icon +"\"";
         }
         s1 += "}";
         
-        String s1_ = make_discover("switch", "EcoNet_01", "EcoNet_920", sensors[i].name, String(sensors[i].unique_name+"_01"), s1);
-        String topic = "homeassistant/sensor/EcoNet_01/" + sensors[i].unique_name + "/config";
+        String s1_ = make_discover("switch", "EcoNet_01", "EcoNet_920", sensors_get[i].name, String(sensors_get[i].unique_name+"_01"), s1);
+        String topic = "homeassistant/sensor/EcoNet_01/" + sensors_get[i].unique_name + "/config";
         client.publish(topic.c_str(), s1_.c_str(), true);
     }   
+
+
+
 }
 
 void reconnect() 
@@ -261,3 +296,4 @@ void setup_wifi()
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 }
+

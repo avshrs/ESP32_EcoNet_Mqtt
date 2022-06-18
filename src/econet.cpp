@@ -386,16 +386,6 @@ void EcoNet::set_huw_temp_hysteresis(uint8_t hysteresis)
 }
 
 
-
-
-
-
-
-
-
-
-
-
 void EcoNet::set_huw_pump_mode(String pump_mode)
 {
     if(pump_mode == "Priority" || pump_mode == "heat")
@@ -654,7 +644,7 @@ void EcoNet::set_room_thermostat_hysteresis(float hysteresis)
 
 void EcoNet::set_boiler_max_power_kw(uint8_t power_kw)
 {
-    if(power_kw <= 18 && power_kw >=9)
+    if(power_kw <= 18 && power_kw >=5)
     {
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x00};
         buf.push_back(power_kw);
@@ -670,7 +660,7 @@ void EcoNet::set_boiler_max_power_kw(uint8_t power_kw)
 
 void EcoNet::set_boiler_mid_power_kw(uint8_t power_kw)
 {
-    if(power_kw <= 18 && power_kw >=9)
+    if(power_kw <= 18 && power_kw >=4)
     {
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x01};
         buf.push_back(power_kw);
@@ -685,7 +675,7 @@ void EcoNet::set_boiler_mid_power_kw(uint8_t power_kw)
 }
 void EcoNet::set_boiler_min_power_kw(uint8_t power_kw)
 {
-    if(power_kw <= 6 && power_kw >=2)
+    if(power_kw <= 12 && power_kw >=2)
     {
         std::vector<uint8_t> buf = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x02};
         buf.push_back(power_kw);
@@ -749,11 +739,14 @@ String EcoNet::get_huw_pump_mode()
 {
     String value;
     if(ecomax920_settings_payload.huw_mode == 0x01)
-        value = "Priority";
+        // value = "Priority"; //default
+        value = "heat";
     else if(ecomax920_settings_payload.huw_mode == 0x02)
-        value = "No_Priority";
+        // value = "No_Priority"; //default
+        value = "auto";
     else if(ecomax920_settings_payload.huw_mode == 0x00)
-        value = "Off";        
+        // value = "Off"; //default
+        value = "off";        
     return value;
 }
 
@@ -800,11 +793,14 @@ String EcoNet::get_room_thermostat_summer_winter_mode()
 {    
     String value;
      if(ecomax920_settings_payload.boiler_summer_winter_mode == 0x00)
-        value = "Winter";
+        // value = "Winter"; //default
+        value = "heat";
      else if(ecomax920_settings_payload.boiler_summer_winter_mode == 0x01)
-        value = "Summer";
+        // value = "Summer"; //default
+        value = "off";
      else if(ecomax920_settings_payload.boiler_summer_winter_mode == 0x02)
-        value = "Auto";        
+        // value = "Auto"; //default
+        value = "auto";  
     return value;
 }
 String EcoNet::get_room_thermostat_night_temp()
@@ -827,21 +823,29 @@ String EcoNet::get_room_thermostat_operating_mode()
 {
     String value;
     if(ecoster_settings_payload.room_thermostat_operating_mode == 0x00)
-        value = "Schedule";     // auto
+        // value = "Schedule";     //default
+        value = "auto";     // auto
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x01)
-        value = "Economy";      
+        // value = "Economy";      //default
+        value = "Economy";   
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x02)
-        value = "Comfort";      //heat
+        // value = "Comfort";      //default
+        value = "heat";      //default
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x03)
-        value = "Outside";      // off   
+        // value = "Outside";     //default  
+        value = "off";     //default  
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x04)
-        value = "Ventilation";      // off   
+        // value = "Ventilation";      //default   
+        value = "off";     //default  
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x05)
-        value = "Party";      // off   
+        // value = "Party";      //default 
+        value = "off";     //default  
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x06)
-        value = "Holiday";      // off   
+        // value = "Holiday";      //default 
+        value = "off";     //default   
     else if(ecoster_settings_payload.room_thermostat_operating_mode == 0x07)
-        value = "Frost_protection";      // off   
+        // value = "Frost_protection";      //default
+        value = "off";     //default  
     return value;
 }
 String EcoNet::get_room_thermostat_hysteresis()
@@ -1131,3 +1135,4 @@ void EcoNet::update_statuses(bool force)
     }
 
 }
+

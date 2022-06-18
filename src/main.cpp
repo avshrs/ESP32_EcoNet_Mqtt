@@ -5,7 +5,7 @@
 #include "econet.h"
 
 
-int d = 1; 
+bool temporary = true; 
 unsigned long previousMillis = 60001;  
 unsigned long previousMillis2 =60001;  
 EcoNet econet;
@@ -39,11 +39,12 @@ void callback(char* topic, byte* payload, unsigned int length)
     } 
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp") == 0) 
     {
-        econet.set_huw_temp(st.toInt());
+        econet.set_huw_temp((uint8_t)(uint8_t)st.toInt());
     } 
+    
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_min") == 0) 
     {
-        econet.set_huw_min_temp(st.toInt());
+        econet.set_huw_min_temp((uint8_t)st.toInt());
     } 
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/summer_winter_mode") == 0) 
     {
@@ -51,12 +52,12 @@ void callback(char* topic, byte* payload, unsigned int length)
     } 
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/mixer/temp") == 0) 
     {
-        econet.set_mixer_temp(st.toInt());
+        econet.set_mixer_temp((uint8_t)st.toInt());
     } 
     
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_hysteresis") == 0) 
     {
-        econet.set_huw_temp_hysteresis(st.toInt());
+        econet.set_huw_temp_hysteresis((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/container_disinfection") == 0) 
     {
@@ -67,7 +68,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/temp") == 0) 
     {
-        econet.set_boiler_temp(st.toInt());
+        econet.set_boiler_temp((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/on_off") == 0) 
     {
@@ -78,31 +79,31 @@ void callback(char* topic, byte* payload, unsigned int length)
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/max_power_kw") == 0) 
     {
-        econet.set_boiler_max_power_kw(st.toInt());
+        econet.set_boiler_max_power_kw((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/mid_power_kw") == 0) 
     {
-        econet.set_boiler_mid_power_kw(st.toInt());
+        econet.set_boiler_mid_power_kw((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/min_power_kw") == 0) 
     {
-        econet.set_boiler_min_power_kw(st.toInt());
+        econet.set_boiler_min_power_kw((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/max_power_fan") == 0) 
     {
-        econet.set_boiler_max_power_fan(st.toInt());
+        econet.set_boiler_max_power_fan((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/mid_power_fan") == 0) 
     {
-        econet.set_boiler_mid_power_fan(st.toInt());
+        econet.set_boiler_mid_power_fan((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/min_power_fan") == 0) 
     {
-        econet.set_boiler_min_power_fan(st.toInt());
+        econet.set_boiler_min_power_fan((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/mixer/temp") == 0) 
     {
-        econet.set_mixer_temp(st.toInt());
+        econet.set_mixer_temp((uint8_t)st.toInt());
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/room_thermostat/hysteresis") == 0) 
     {
@@ -173,7 +174,11 @@ void loop()
         client.publish("avshrs/devices/EcoNet_01/status/connected", msg);
         Serial.println("update_statuses");
     }
-
+    if (currentMillis > 121000 && temporary)
+    {
+        temporary = false; 
+        econet.set_huw_container_disinfection(true);
+    }
 
     
 }
