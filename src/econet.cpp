@@ -310,11 +310,10 @@ void EcoNet::set_huw_temp(uint8_t temp)
 {
     if(temp <= 70 && temp >=20)
     {
-        int frame_size = 16;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp };
-        uint8_t buf[frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);
     }
     else
     {
@@ -340,11 +339,10 @@ void EcoNet::set_huw_max_temp(uint8_t temp)
 {
     if(temp <= 70 && temp >=20)
     {
-        int frame_size = 16;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp };
-        uint8_t buf[frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);
     }
     else
     {
@@ -356,11 +354,10 @@ void EcoNet::set_huw_temp_hysteresis(uint8_t hysteresis)
 {
     if(hysteresis <= 30 && hysteresis >= 1)
     {   
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3a, hysteresis };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3a, hysteresis, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3a, hysteresis, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);
     }
     else
     {
@@ -384,11 +381,10 @@ void EcoNet::set_huw_pump_mode(String pump_mode)
  
     if(value != 0xff)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, value };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, value, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, value, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);
     }
 }
 
@@ -404,11 +400,10 @@ void EcoNet::set_huw_container_disinfection(bool state)
 
     if (value != 0xff)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3b, value };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3b, value, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3b, value, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);
     }
 }
 
@@ -435,11 +430,10 @@ void EcoNet::set_room_thermostat_summer_winter_mode(String state)
 
     if (value != 0xff)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, value };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, value, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, value, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);    
     }
 
 }
@@ -448,11 +442,10 @@ void EcoNet::set_boiler_temp(uint8_t temp)
 {
     if(temp <= 80 && temp >=35)
     {
-        int frame_size = 16;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x00, 0x05, temp };
-        uint8_t buf[frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x00, 0x05, temp, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x00, 0x05, temp, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);    
     }
     else
     {
@@ -471,11 +464,10 @@ void EcoNet::set_boiler_on_off(bool state)
     
     if (value != 0xff)
     {
-        int frame_size = 11;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0b, 0x00, 0x45, 0x56, 0x30, 0x05, 0x3b, value };
-        uint8_t buf[frame_size] = {0x68, 0x0b, 0x00, 0x45, 0x56, 0x30, 0x05, 0x3b, value, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0b, 0x00, 0x45, 0x56, 0x30, 0x05, 0x3b, value, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
 }
 
@@ -483,11 +475,10 @@ void EcoNet::set_mixer_temp(uint8_t temp)
 {
     if(temp <= 70 && temp >=20)
     {
-        int frame_size = 16;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x07, 0x05, temp };
-        uint8_t buf[frame_size] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x07, 0x05, temp, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x07, 0x05, temp, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -508,11 +499,10 @@ void EcoNet::set_room_thermostat_night_temp(float temp_)
         uin[0] = static_cast<uint8_t>(temp);
         uin[1] = static_cast<uint8_t>(temp >> 8);
 
-        int frame_size = 13;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d,  0x0b, uin[0], uin[1] };
-        uint8_t buf[frame_size] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d,  0x0b, uin[0], uin[1], crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d,  0x0b, uin[0], uin[1], 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -530,12 +520,10 @@ void EcoNet::set_room_thermostat_day_temp(float temp_)
         
         uin[0] = static_cast<uint8_t>(temp);
         uin[1] = static_cast<uint8_t>(temp >> 8);
-
-        int frame_size = 13;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x0a, uin[0], uin[1] };
-        uint8_t buf[frame_size] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x0a, uin[0], uin[1], crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x0a, uin[0], uin[1], 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -585,11 +573,10 @@ void EcoNet::set_room_thermostat_operating_mode(String state)
     }
     if (value != 0xff)
     {
-        int frame_size = 12;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, value };
-        uint8_t buf[frame_size] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, value, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, value, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
 }
 void EcoNet::set_room_thermostat_hysteresis(float hysteresis)
@@ -597,11 +584,10 @@ void EcoNet::set_room_thermostat_hysteresis(float hysteresis)
 
     if(hysteresis <= 5 ) //0x05 0.5C //0x15 1.5C
     {
-        int frame_size = 12;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x09, static_cast<unsigned int>(hysteresis*10) };
-        uint8_t buf[frame_size] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x09, static_cast<unsigned int>(hysteresis*10), crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);
+        uint8_t buf[16] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x09, static_cast<unsigned int>(hysteresis*10), 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -613,11 +599,10 @@ void EcoNet::set_boiler_max_power_kw(uint8_t power_kw)
 {
     if(power_kw <= 18 && power_kw >=5)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x00, power_kw };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x00, power_kw, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);        
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x00, power_kw , 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -629,11 +614,10 @@ void EcoNet::set_boiler_mid_power_kw(uint8_t power_kw)
 {
     if(power_kw <= 18 && power_kw >=4)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x01, power_kw };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x01, power_kw, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);   
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x01, power_kw, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -644,11 +628,10 @@ void EcoNet::set_boiler_min_power_kw(uint8_t power_kw)
 {
     if(power_kw <= 12 && power_kw >=2)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x02, power_kw };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x02, power_kw, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);   
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x02, power_kw , 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size); 
     }
     else
     {
@@ -659,11 +642,10 @@ void EcoNet::set_boiler_max_power_fan(uint8_t fun_max)
 {
     if(fun_max <= 60 && fun_max >=28)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x03, fun_max };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x03, fun_max, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);   
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x03, fun_max, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);  
     }
     else
     {
@@ -675,11 +657,10 @@ void EcoNet::set_boiler_mid_power_fan(uint8_t fun_mid)
 {
     if(fun_mid <= 30 && fun_mid >=25)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x04, fun_mid };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x04, fun_mid, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size);  
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x04, fun_mid, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);      
     }
     else
     {
@@ -690,11 +671,10 @@ void EcoNet::set_boiler_min_power_fan(uint8_t fun_min)
 {
     if(fun_min <= 25 && fun_min >=17)
     {
-        int frame_size = 14;
-        int crc_frame_size = frame_size - 2;
-        uint8_t pre_buf[crc_frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x05, fun_min };
-        uint8_t buf[frame_size] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x05, fun_min, crc(pre_buf, crc_frame_size), 0x16 };
-        serial_485.serial_send(buf, frame_size); 
+        uint8_t buf[16] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x05, fun_min, 0x00, 0x16};
+        uint8_t size = buf[2];
+        buf[size-2] = crc(buf, size -2);
+        serial_485.serial_send(buf, size);      
     }
     else
     {
