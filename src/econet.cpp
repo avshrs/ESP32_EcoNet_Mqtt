@@ -7,9 +7,6 @@ void EcoNet::init(int tx_pin, int boudrate)
 
 void EcoNet::run()
 {   
-    uint8_t header[10];
-    uint8_t payload[1024];
-    uint8_t message[1024];
     
     if(serial_485.serial_read_byte() == frame_begin)
     {
@@ -25,7 +22,7 @@ void EcoNet::run()
         }
         Ecomax_920_Frame_Header ecomax_header = *reinterpret_cast<Ecomax_920_Frame_Header*>(header);    
         
-        serial_485.serial_read_bytes(payload, ecomax_header.frame_size);
+        serial_485.serial_read_bytes(payload, ecomax_header.frame_size-8);
         int message_size = ecomax_header.frame_size;
         
         for(unsigned int i = 0; i < message_size; i++)
@@ -39,6 +36,8 @@ void EcoNet::run()
                 message[i] = payload[i-8];
             }
         }
+        // Serial.println(  message_size);
+        // Serial.println( buffer_to_string(message, message_size));
 
         if (debug==1)
             {
@@ -59,6 +58,7 @@ void EcoNet::run()
                     mqtt->publish("avshrs/devices/EcoNet_01/status/Ecomax_920_Live_Data_Frame_payload", 
                                     buffer_to_string(message, message_size).c_str());
                 }
+                // memcpy(b, &struct_data, sizeof(struct_data));
                 ecomax920_payload = *reinterpret_cast<Ecomax_920_Live_Data_Frame_payload*>(payload);
                 update_statuses(false);
 
@@ -308,22 +308,25 @@ String EcoNet::get_boiler_pomp_state()
 
 void EcoNet::set_huw_temp(uint8_t temp)
 {
-    if(temp <= 70 && temp >=20)
+    if((int)temp <= 70 && (int)temp >=20)
     {
         uint8_t buf[20] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);
     }
     else
     {
+               
+
         Serial.println("set_huw_temp out of range 20 - 70");
+         Serial.println(temp);
     }
 }
 
 void EcoNet::set_huw_min_temp(uint8_t temp)
 {
-    if(temp <= 69 && temp >=20 && temp < get_huw_temp_target().toInt() && get_huw_temp_target().toInt() > 35)
+    if(temp <= 69 && temp >=20 && temp < get_huw_temp_target().toInt())
     {
         uint8_t target_t = get_huw_temp_target().toInt();
         uint8_t hysteresis = target_t - temp; 
@@ -331,7 +334,9 @@ void EcoNet::set_huw_min_temp(uint8_t temp)
     }
     else
     {
+        
         Serial.println("set_huw_temp out of range 20 - 69");
+         Serial.println(temp);
     }
 }
 
@@ -340,13 +345,16 @@ void EcoNet::set_huw_max_temp(uint8_t temp)
     if(temp <= 70 && temp >=20)
     {
         uint8_t buf[20] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x01 ,0x05, temp, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);
     }
     else
     {
+                
+
         Serial.println("set_huw_temp out of range 20 - 70");
+         Serial.println(temp);
     }
 }
 
@@ -355,7 +363,7 @@ void EcoNet::set_huw_temp_hysteresis(uint8_t hysteresis)
     if(hysteresis <= 30 && hysteresis >= 1)
     {   
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3a, hysteresis, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);
     }
@@ -382,7 +390,7 @@ void EcoNet::set_huw_pump_mode(String pump_mode)
     if(value != 0xff)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x39, value, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);
     }
@@ -391,6 +399,7 @@ void EcoNet::set_huw_pump_mode(String pump_mode)
 
 void EcoNet::set_huw_container_disinfection(bool state)
 {
+
     uint8_t value = 0xff;
 
     if(state)
@@ -401,9 +410,12 @@ void EcoNet::set_huw_container_disinfection(bool state)
     if (value != 0xff)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3b, value, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
+
         buf[size-2] = crc(buf, size -2);
+
         serial_485.serial_send(buf, size);
+
     }
 }
 
@@ -431,7 +443,7 @@ void EcoNet::set_room_thermostat_summer_winter_mode(String state)
     if (value != 0xff)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x3d, value, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);    
     }
@@ -443,7 +455,7 @@ void EcoNet::set_boiler_temp(uint8_t temp)
     if(temp <= 80 && temp >=35)
     {
         uint8_t buf[20] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x00, 0x05, temp, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);    
     }
@@ -465,7 +477,7 @@ void EcoNet::set_boiler_on_off(bool state)
     if (value != 0xff)
     {
         uint8_t buf[20] = {0x68, 0x0b, 0x00, 0x45, 0x56, 0x30, 0x05, 0x3b, value, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -476,7 +488,7 @@ void EcoNet::set_mixer_temp(uint8_t temp)
     if(temp <= 70 && temp >=20)
     {
         uint8_t buf[20] = {0x68, 0x10, 0x00, 0x45, 0x56, 0x30, 0x05, 0x57, 0x01, 0x00, 0x04, 0x07, 0x05, temp, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -500,7 +512,7 @@ void EcoNet::set_room_thermostat_night_temp(float temp_)
         uin[1] = static_cast<uint8_t>(temp >> 8);
 
         uint8_t buf[20] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d,  0x0b, uin[0], uin[1], 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -521,7 +533,7 @@ void EcoNet::set_room_thermostat_day_temp(float temp_)
         uin[0] = static_cast<uint8_t>(temp);
         uin[1] = static_cast<uint8_t>(temp >> 8);
         uint8_t buf[20] = {0x68, 0x0d, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x0a, uin[0], uin[1], 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -574,7 +586,7 @@ void EcoNet::set_room_thermostat_operating_mode(String state)
     if (value != 0xff)
     {
         uint8_t buf[20] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x01, value, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -585,7 +597,7 @@ void EcoNet::set_room_thermostat_hysteresis(float hysteresis)
     if(hysteresis <= 5 ) //0x05 0.5C //0x15 1.5C
     {
         uint8_t buf[20] = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x09, static_cast<unsigned int>(hysteresis*10), 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -600,7 +612,7 @@ void EcoNet::set_boiler_max_power_kw(uint8_t power_kw)
     if(power_kw <= 18 && power_kw >=5)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x00, power_kw , 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -615,7 +627,7 @@ void EcoNet::set_boiler_mid_power_kw(uint8_t power_kw)
     if(power_kw <= 18 && power_kw >=4)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x01, power_kw, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -629,7 +641,7 @@ void EcoNet::set_boiler_min_power_kw(uint8_t power_kw)
     if(power_kw <= 12 && power_kw >=2)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x02, power_kw , 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size); 
     }
@@ -643,7 +655,7 @@ void EcoNet::set_boiler_max_power_fan(uint8_t fun_max)
     if(fun_max <= 60 && fun_max >=28)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x03, fun_max, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);  
     }
@@ -658,7 +670,7 @@ void EcoNet::set_boiler_mid_power_fan(uint8_t fun_mid)
     if(fun_mid <= 30 && fun_mid >=25)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x04, fun_mid, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);      
     }
@@ -672,7 +684,7 @@ void EcoNet::set_boiler_min_power_fan(uint8_t fun_min)
     if(fun_min <= 25 && fun_min >=17)
     {
         uint8_t buf[20] = {0x68, 0x0e, 0x00, 0x45, 0x56, 0x30, 0x05, 0x56, 0x05, 0x01, 0x05, fun_min, 0x00, 0x16};
-        uint8_t size = buf[2];
+        uint8_t size = buf[1];
         buf[size-2] = crc(buf, size -2);
         serial_485.serial_send(buf, size);      
     }

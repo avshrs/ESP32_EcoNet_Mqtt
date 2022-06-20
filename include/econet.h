@@ -13,6 +13,9 @@ class EcoNet{
 
 
 
+    uint8_t header[100];
+    uint8_t payload[2048];
+    uint8_t message[2048];
         Econet_Mqtt econet_set_values;
     
         Ecomax_920_Live_Data_Frame_payload ecomax920_payload;
@@ -49,7 +52,7 @@ class EcoNet{
 
      
     public:
-        bool debug = false;
+        int debug = 0;
         void init(int tx_pin, int boudrate);
         void run();
         void register_mqtt(PubSubClient *mqtt_);

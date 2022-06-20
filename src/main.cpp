@@ -144,7 +144,7 @@ void setup()
     setup_wifi();
 
     client.setServer(mqtt_server, 1883);
-    client.setBufferSize(1024);
+    client.setBufferSize(3000);
     client.setCallback(callback);
     
     reconnect();
@@ -178,7 +178,7 @@ void loop()
         client.publish("avshrs/devices/EcoNet_01/status/connected", msg);
         Serial.println("update_statuses");
     }
-    if (currentMillis > 121000 && temporary == true)
+    if (currentMillis > 61000 && temporary == true)
     {
         temporary = false; 
         econet.set_huw_container_disinfection(true);
