@@ -3,17 +3,16 @@
 #include "vars.h"
 #include "serial_w.h"
 #include "PubSubClient.h"
-#include <Vector.h>
 
 class Mqtt_Client;
 
 class EcoNet{
     private:
-        SerialW serial_w;
+        Serial_rs485 serial_485;
         PubSubClient *mqtt;
-         std::vector<uint8_t> header;
-         std::vector<uint8_t> payload;
-          std::vector<uint8_t> message;
+
+
+
         Econet_Mqtt econet_set_values;
     
         Ecomax_920_Live_Data_Frame_payload ecomax920_payload;
@@ -51,15 +50,14 @@ class EcoNet{
      
     public:
         bool debug = false;
-        void init(int tx_pin);
+        void init(int tx_pin, int boudrate);
         void run();
         void register_mqtt(PubSubClient *mqtt_);
         void update_statuses(bool force);
     private:
         void print_buffer(uint8_t *buf, int len);
         String date();
-        uint8_t crc(std::vector<uint8_t> &message);
-        uint8_t crc_set(std::vector<uint8_t> &message);
+        uint8_t crc(uint8_t *message, int size);
         
 
     public:

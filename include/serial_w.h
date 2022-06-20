@@ -2,18 +2,19 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include "vars.h"
-#include <Vector.h>
 
 
-class SerialW
+class Serial_rs485
 {
   public:
-    int lead_z = 0 ;
-    int EnTxPin =  4;  // HIGH:Transmitter, LOW:Receiver
-     
-    int loop = 0;
-    void serial_open(int tx_pin);
-    void serial_send(std::vector<uint8_t> &tx_buffer);
-    void serial_read_payload(std::vector<uint8_t> &rx_buffer, short size);  
-    void serial_read_header(std::vector<uint8_t> &rx_buffer, int size);
+    int EnTxPin =  18;  // HIGH:Transmitter, LOW:Receiver
+  
+  public:
+    void serial_open(int tx_enable_pin, int boudrate);
+
+    void serial_send(uint8_t *tx_buffer, int size);
+    uint8_t serial_read_byte();  
+    void serial_read_bytes(uint8_t *rx_buffer, int size);  
+    
 };
+
