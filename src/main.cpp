@@ -181,6 +181,7 @@ void loop()
     if (currentMillis > 61000 && temporary == true)
     {
         temporary = false; 
+        econet.set_huw_container_disinfection(false);
         econet.set_huw_container_disinfection(true);
         
     }

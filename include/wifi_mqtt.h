@@ -37,7 +37,6 @@ struct Sensors_Set{
     String step;
     String unit_of_measurement;
     String icon;
-    
 } ;
 
 Sensors_Get sensors_get[50];
@@ -83,13 +82,13 @@ sensors_get[34] = {"ecoNet_get_boiler_min_power_kw", "Palnik Min Moc", "boiler/m
 sensors_get[35] = {"ecoNet_get_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_fan", "%", "mdi:fan"};
 sensors_get[36] = {"ecoNet_get_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_fan", "%", "mdi:fan"};
 sensors_get[37] = {"ecoNet_get_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_fan", "%", "mdi:fan"};
-sensors_get[38] = {"ecoNet_get_room_thermostat_summer_winter_mode", "Palnik Tryb pracy", "room_thermostat/summer_winter_mode", "", "mdi:fire"};
-sensors_get[39] = {"ecoNet_get_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "°C", "mdi:fire"};
-sensors_get[40] = {"ecoNet_get_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "°C", "mdi:fire"};
+sensors_get[38] = {"ecoNet_get_room_thermostat_summer_winter_mode", "Palnik Tryb pracy", "room_thermostat/summer_winter_mode", "", "mdi:thermometer"};
+sensors_get[39] = {"ecoNet_get_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "°C", "mdi:thermometer"};
+sensors_get[40] = {"ecoNet_get_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "°C", "mdi:thermometer"};
 sensors_get[41] = {"ecoNet_get_room_thermostat_operating_mode", "Termostat tryb pracy", "room_thermostat/operating_mode", "", "mdi:fire"};
-sensors_get[42] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
-sensors_get[43] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
-sensors_get[44] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:fire"};
+sensors_get[42] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:thermometer"};
+sensors_get[43] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:thermometer"};
+sensors_get[44] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza", "room_thermostat/hysteresis", "°C", "mdi:thermometer"};
 
 sensors_set[0] = {"ecoNet_set_huw_temp_hysteresis", "Termostat Histereza", "huw/temp_hysteresis", "huw/temp_hysteresis", "0", "15", "1", "°C", "mdi:thermometer"};
 sensors_set[1] = {"ecoNet_set_boiler_temp_target", "Piec zadana temperatura", "boiler/temp_target", "boiler/temp_target","20", "75", "1", "°C", "mdi:thermometer"};
@@ -99,11 +98,11 @@ sensors_set[4] = {"ecoNet_set_boiler_min_power_kw", "Palnik Min Moc", "boiler/mi
 sensors_set[5] = {"ecoNet_set_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_fan", "boiler/max_power_fan", "15", "60", "1",  "%", "mdi:fan"};
 sensors_set[6] = {"ecoNet_set_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_fan", "boiler/mid_power_fan", "15", "35", "1",  "%", "mdi:fan"};
 sensors_set[7] = {"ecoNet_set_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_fan", "boiler/min_power_fan", "15", "35", "1",  "%", "mdi:fan"};
-sensors_set[8] = {"ecoNet_set_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "mixer/temp_target", "15", "65", "1",  "%", "mdi:fan"};
-sensors_set[9] = {"ecoNet_set_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "room_thermostat/night_temp", "15", "25", "0.1",  "%", "mdi:fan"};
-sensors_set[10] = {"ecoNet_set_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "room_thermostat/day_temp", "15", "25", "0.1",  "%", "mdi:fan"};
-sensors_set[11] = {"ecoNet_set_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "huw/temp_target", "20", "70", "1",  "%", "mdi:fan"};
-sensors_set[12] = {"ecoNet_set_huw_temp_min_target", "Ciepła woda min zadana temperaturaatura", "huw/temp_min_target", "huw/temp_min_target", "20", "69", "1",  "%", "mdi:fan"};
+sensors_set[8] = {"ecoNet_set_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "mixer/temp_target", "15", "65", "1", "°C", "mdi:thermometer"};
+sensors_set[9] = {"ecoNet_set_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "room_thermostat/night_temp", "15", "25", "0.1", "°C", "mdi:thermometer"};
+sensors_set[10] = {"ecoNet_set_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "room_thermostat/day_temp", "15", "25", "0.1",  "°C", "mdi:thermometer"};
+sensors_set[11] = {"ecoNet_set_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "huw/temp_target", "20", "70", "1", "°C", "mdi:thermometer"};
+sensors_set[12] = {"ecoNet_set_huw_temp_min_target", "Ciepła woda min zadana temperaturaatura", "huw/temp_min_target", "huw/temp_min_target", "20", "69", "1",  "°C", "mdi:thermometer"};
 }
 
 
@@ -179,6 +178,10 @@ void prepare_conf()
         if (sensors_get[i].unit_of_measurement !="none")
         {
             s1 += ",\"unit_of_measurement\":\"" + sensors_get[i].unit_of_measurement +"\"";
+            if (sensors_get[i].unit_of_measurement == "°C")
+            {
+                s1 += ",\"state_class\":\"measurement\"";
+            }
         }
         if (sensors_get[i].icon !="none")
         {
