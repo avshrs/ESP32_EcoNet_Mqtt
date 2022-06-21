@@ -1,75 +1,6 @@
 #pragma once
 #include "Arduino.h"
 
-struct Econet_Mqtt
-{
-    String pub_huw_temp;
-    String pub_huw_pump_mode;
-    String pub_huw_temp_hysteresis;
-    String pub_huw_container_disinfection;
-    String pub_boiler_temp;
-    String pub_boiler_on_off;
-    String pub_boiler_max_power_kw;
-    String pub_boiler_mid_power_kw;
-    String pub_boiler_min_power_kw;
-    String pub_boiler_max_power_fan;
-    String pub_boiler_mid_power_fan;
-    String pub_boiler_min_power_fan;
-    String pub_mixer_temp;
-    String pub_room_thermostat_summer_winter_mode;
-    String pub_room_thermostat_night_temp;
-    String pub_room_thermostat_day_temp;
-    String pub_room_thermostat_operating_mode;
-    String pub_room_thermostat_hysteresis;
-    String sub_get_operating_status;
-    String sub_get_huw_temp;
-    String sub_get_feeder_temp;
-    String sub_get_boiler_temp;
-    String sub_get_weather_temp;
-    String sub_get_exhaust_temp;
-    String sub_get_mixer_temp;
-    String sub_get_boiler_return_temp;
-    String sub_get_upper_buffer_temp;
-    String sub_get_lower_buffer_temp;
-    String sub_get_flame_sensor;
-    String sub_get_ecoster_home_temp;
-    String sub_get_ecoster_home_temp_target;
-    String sub_get_huw_temp_target;
-    String sub_get_boiler_temp_target;
-    String sub_get_mixer_temp_target;
-    String sub_get_fuel_level;
-    String sub_get_fan_out_power;
-    String sub_get_fan_in_power;
-    String sub_get_huw_pomp_state;
-    String sub_get_boiler_pomp_state;
-    String sub_get_fuel_stream;
-    String sub_get_boiler_power_kw;
-    String sub_get_power_max_time;
-    String sub_get_power_medium_time;
-    String sub_get_power_min_time;
-    String sub_get_feeder_time;
-    String sub_get_ignitions;
-    String sub_get_ignitions_fails;
-    String sub_get_huw_pump_mode;
-    String sub_get_huw_temp_hysteresis;
-    String sub_get_huw_container_disinfection;
-    String sub_get_boiler_on_off;
-    String sub_get_boiler_max_power_kw;
-    String sub_get_boiler_mid_power_kw;
-    String sub_get_boiler_min_power_kw;
-    String sub_get_boiler_max_power_fan;
-    String sub_get_boiler_mid_power_fan;
-    String sub_get_boiler_min_power_fan;
-    String sub_get_room_thermostat_summer_winter_mode;
-    String sub_get_room_thermostat_night_temp;
-    String sub_get_room_thermostat_day_temp;
-    String sub_get_room_thermostat_operating_mode;
-    String sub_get_room_thermostat_hysteresis="0.5";
-};
-
-
-
-
 
 struct __attribute__((packed)) Ecomax_920_Frame_Header{
     uint8_t frame_begine;  	// 0
@@ -659,7 +590,7 @@ struct EcoNet_cfg
     int boudrate;
     int remove_lead_zero;
 };
-struct Ecoster_payload
+struct __attribute__((packed)) Ecoster_payload
 {
     float home_temp_target = 0; 
     float home_temp = 0;

@@ -103,6 +103,7 @@ sensors_set[9] = {"ecoNet_set_room_thermostat_night_temp", "Termostat nocna temp
 sensors_set[10] = {"ecoNet_set_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "room_thermostat/day_temp", "15", "25", "0.1",  "°C", "mdi:thermometer"};
 sensors_set[11] = {"ecoNet_set_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "huw/temp_target", "20", "70", "1", "°C", "mdi:thermometer"};
 sensors_set[12] = {"ecoNet_set_huw_temp_min_target", "Ciepła woda min zadana temperaturaatura", "huw/temp_min_target", "huw/temp_min_target", "20", "69", "1",  "°C", "mdi:thermometer"};
+sensors_set[12] = {"ecoNet_set_huw_container_disinfection", "CWU Sterylizacja Bojlera", "huw/container_disinfection", "huw/container_disinfection", "0", "1", "1",  "", "mdi:thermometer"};
 }
 
 

@@ -6,6 +6,7 @@
 
 
 bool temporary = true; 
+bool temporary2 = true;
 unsigned long previousMillis = 60001;  
 unsigned long previousMillis2 =60001;  
 EcoNet econet;
@@ -68,9 +69,9 @@ void callback(char* topic, byte* payload, unsigned int length)
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/container_disinfection") == 0) 
     {
-        if(st == "ON")
+        if(st == "ON" || st == "1")
             econet.set_huw_container_disinfection(true);
-        else if(st == "OFF")
+        else if(st == "OFF" || st == "0")
             econet.set_huw_container_disinfection(false);
     }
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/temp") == 0) 
@@ -182,8 +183,13 @@ void loop()
     {
         temporary = false; 
         econet.set_huw_container_disinfection(false);
-        econet.set_huw_container_disinfection(true);
         
+    }
+    if (currentMillis > 121000 && temporary2 == true)
+    {
+        temporary2 = false; 
+        
+        econet.set_huw_container_disinfection(true);
     }
 
     

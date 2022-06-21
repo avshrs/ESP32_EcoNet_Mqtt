@@ -60,6 +60,7 @@ void EcoNet::run()
                 }
                 // memcpy(b, &struct_data, sizeof(struct_data));
                 ecomax920_payload = *reinterpret_cast<Ecomax_920_Live_Data_Frame_payload*>(payload);
+                
                 update_statuses(false);
 
             }
