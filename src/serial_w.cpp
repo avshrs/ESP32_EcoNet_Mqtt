@@ -24,7 +24,15 @@ void SerialW::serial_send(std::vector<uint8_t> &tx_buffer)
 
 void SerialW::serial_read_header(std::vector<uint8_t> &rx_buffer,int size)
 {	
-    while(!Serial2.available()){}
+    unsigned long c_timer = millis();
+    while(!Serial2.available())
+    {
+        if(millis() > (c_timer + 100))
+        {
+            rx_buffer.push_back(0xff);
+            break;
+        }
+    }
     if(Serial2.read() == 0x68)
     {
         rx_buffer.push_back(0x68);

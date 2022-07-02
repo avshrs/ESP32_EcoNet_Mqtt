@@ -3,54 +3,32 @@
 void EcoNet::init(int tx_pin)
 {
     serial_w.serial_open(tx_pin);
+    message.reserve(1500);
+    payload.reserve(1524);
 }
 
 void EcoNet::run()
 {   
-
     header.clear();
     payload.clear();
     message.clear();
     
+    
     serial_w.serial_read_header(header, 8); 
-    if(debug)   
-    {
-        Serial.println(buffer_to_string(header.data(), header.size()));
-        mqtt->publish("avshrs/devices/EcoNet_01/status/header", buffer_to_string(header.data(), header.size()).c_str());
-    }
+
     if(header.front()  == frame_begin)
     {
-        if(debug)
-        {
-            Serial.println("header_corectly_readed");
-            mqtt->publish("avshrs/devices/EcoNet_01/status/header_correct", "1");
-        }
+
         Ecomax_920_Frame_Header ecomax_header = *reinterpret_cast<Ecomax_920_Frame_Header*>(header.data());    
         
         serial_w.serial_read_payload(payload, ecomax_header.frame_size);
 
-        if(debug)
-        {
-            Serial.println(buffer_to_string(payload.data(), payload.size()));
-            mqtt->publish("avshrs/devices/EcoNet_01/status/payload", buffer_to_string(payload.data(), payload.size()).c_str());
-            mqtt->publish("avshrs/devices/EcoNet_01/status/mesage_end_sign", buffer_to_string(payload.back()).c_str());
-
-        }
         message.insert(message.end(), header.begin(), header.end());
         message.insert(message.end(), payload.begin(), payload.end());
-        if(debug)
-        {
-            Serial.println(buffer_to_string(message.data(), message.size()));
-            mqtt->publish("avshrs/devices/EcoNet_01/status/message", buffer_to_string(message.data(), message.size()).c_str());
 
-        }
         if(crc(message) == static_cast<uint8_t>(message.at(message.size()-2)))
         {
-            if (debug)
-            {
-                Serial.println("CRC_Correct");
-                mqtt->publish("avshrs/devices/EcoNet_01/status/crc", "ok");
-            }
+
             if(ecomax_header.src_address == ecomax_address 
                 && ecomax_header.payload_type == ecomax_live_data_frame)
             {
@@ -58,8 +36,8 @@ void EcoNet::run()
                 update_statuses(false);
                 if (debug)
                 {
-                    Serial.println("ecomax_live_data_frame");
-                    mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_live_data_frame", "ok");
+                    
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/Ecomax_920_Live_Data_Frame_payload", buffer_to_string(message.data(), message.size()).c_str());
                 }
             }
             else if(ecomax_header.src_address == ecomax_address 
@@ -69,8 +47,7 @@ void EcoNet::run()
                 update_statuses(false);
                 if (debug)
                 {
-                    Serial.println("ecomax_settings_frame");
-                    mqtt->publish("avshrs/devices/EcoNet_01/status/ecomax_settings_frame", "ok");
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/Ecomax_settings_Frame_payload", buffer_to_string(message.data(), message.size()).c_str());
                 }
             }
             else if(ecomax_header.src_address == ecoster_address
@@ -78,32 +55,29 @@ void EcoNet::run()
             {
                 ecoster_payload = *reinterpret_cast<Ecoster_Live_Data_Frame_payload*>(payload.data());
                 update_statuses(false);
+                if (debug)
+                {
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/Ecoster_Live_Data_Frame_payload", buffer_to_string(message.data(), message.size()).c_str());
+                }
             }            
             else if(ecomax_header.src_address == ecoster_address 
                 && ecomax_header.payload_type == ecoster_settings_frame)
             {
                 ecoster_settings_payload = *reinterpret_cast<Ecoster_Settings_Frame_payload*>(payload.data());
                 update_statuses(false);
+                if (debug)
+                {
+                    mqtt->publish("avshrs/devices/EcoNet_01/status/Ecoster_Settings_Frame_payload", buffer_to_string(message.data(), message.size()).c_str());
+                }
+
             } 
-            // else if(ecomax_header.src_address == econet_address) // debug
-            // {  
-            //     // print_buffer(message.data(), message.size());
-            // }   
-            // else if(ecomax_header.src_address == 0x45 && ecomax_header.payload_type == 0x35  ) // debug
-            // {  
-            // } 
-            // else // debug 
-            // {
-            //     //  for debug 
-            //     //   print_buffer(message.data(), message.size());
-            // }
+
             
         }
         else
         {
             if (debug)
             {
-                Serial.println("wrong crc");
                 mqtt->publish("avshrs/devices/EcoNet_01/status/crc", "not ok");
             }
         }
@@ -112,7 +86,6 @@ void EcoNet::run()
     else
         if(debug)
         {
-            Serial.println("header_not_corectly_readed");
             mqtt->publish("avshrs/devices/EcoNet_01/status/header_correct", "0");
         }
 
@@ -126,7 +99,7 @@ void EcoNet::run()
 uint8_t EcoNet::crc(std::vector<uint8_t> &message)
 {   //crc for whole frame
     uint8_t tmp = message.at(0);
-    for(int i = 1 ; i < static_cast<int>(message.size()-2) ; i++ )
+    for(int i = 1 ; i < static_cast<unsigned int>(message.size()-2) ; i++ )
     {
         tmp = tmp^message.at(i);
     }
@@ -135,7 +108,7 @@ uint8_t EcoNet::crc(std::vector<uint8_t> &message)
 uint8_t EcoNet::crc_set(std::vector<uint8_t> &message)
 {   // crc for frame only with data
     uint8_t tmp = message.at(0);
-    for(int i = 1 ; i < static_cast<int>(message.size()) ; i++ )
+    for(int i = 1 ; i < static_cast<unsigned int>(message.size()) ; i++ )
     {
         tmp = tmp^message.at(i);
     }
@@ -631,7 +604,7 @@ void EcoNet::set_room_thermostat_hysteresis(float hysteresis)
     if(hysteresis <= 5 ) //0x05 0.5C //0x15 1.5C
     {
         std::vector<uint8_t> buf = {0x68, 0x0c, 0x00, 0x45, 0x56, 0x30, 0x05, 0x5d, 0x09};
-        buf.push_back(static_cast<int>(hysteresis*10));
+        buf.push_back(static_cast<unsigned int>(hysteresis*10));
         buf.push_back(crc_set(buf));
         buf.push_back(0x16);
         serial_w.serial_send(buf);
@@ -752,41 +725,41 @@ String EcoNet::get_huw_pump_mode()
 
 String EcoNet::get_huw_temp_hysteresis()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.huw_temp_hysteresis));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.huw_temp_hysteresis));
 }
 
 String EcoNet::get_huw_container_disinfection()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.huw_container_disinfection));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.huw_container_disinfection));
 }
 
 String EcoNet::get_boiler_max_power_kw()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.boiler_max_power_kw));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.boiler_max_power_kw));
 }
 
 String EcoNet::get_boiler_mid_power_kw()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.boiler_mid_power_kw));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.boiler_mid_power_kw));
 }
 
 String EcoNet::get_boiler_min_power_kw()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.boiler_min_power_kw));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.boiler_min_power_kw));
 }
 
 String EcoNet::get_boiler_max_power_fan()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.boiler_max_power_fan));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.boiler_max_power_fan));
 }
 
 String EcoNet::get_boiler_mid_power_fan()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.boiler_mid_power_fan));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.boiler_mid_power_fan));
 }
 String EcoNet::get_boiler_min_power_fan()
 {
-    return String(static_cast<int>(ecomax920_settings_payload.boiler_min_power_fan));
+    return String(static_cast<unsigned int>(ecomax920_settings_payload.boiler_min_power_fan));
 }
 
 String EcoNet::get_room_thermostat_summer_winter_mode()
@@ -806,17 +779,17 @@ String EcoNet::get_room_thermostat_summer_winter_mode()
 String EcoNet::get_room_thermostat_night_temp()
 {   
     String value;
-    value = String(static_cast<int>(ecoster_settings_payload.room_thermostat_night_temp_int));
+    value = String(static_cast<unsigned int>(ecoster_settings_payload.room_thermostat_night_temp_int));
     value += ".";
-    value += String(static_cast<int>(ecoster_settings_payload.room_thermostat_night_temp_fract));
+    value += String(static_cast<unsigned int>(ecoster_settings_payload.room_thermostat_night_temp_fract));
     return value;
 }
 String EcoNet::get_room_thermostat_day_temp()
 {
     String value;
-    value = String(static_cast<int>(ecoster_settings_payload.room_thermostat_day_temp_int));
+    value = String(static_cast<unsigned int>(ecoster_settings_payload.room_thermostat_day_temp_int));
     value += ".";
-    value += String(static_cast<int>(ecoster_settings_payload.room_thermostat_day_temp_fract));
+    value += String(static_cast<unsigned int>(ecoster_settings_payload.room_thermostat_day_temp_fract));
     return value;
 }
 String EcoNet::get_room_thermostat_operating_mode()
@@ -850,7 +823,7 @@ String EcoNet::get_room_thermostat_operating_mode()
 }
 String EcoNet::get_room_thermostat_hysteresis()
 {
-    float dat = static_cast<int>(ecoster_settings_payload.room_thermostat_hysteresis);
+    float dat = static_cast<unsigned int>(ecoster_settings_payload.room_thermostat_hysteresis);
     float dat2 = static_cast<float>(dat / 10);
     return String(dat2, 1);
 }
@@ -1130,7 +1103,7 @@ void EcoNet::update_statuses(bool force)
        
     if(force || ecoster_settings_buffer.room_thermostat_hysteresis != ecoster_settings_payload.room_thermostat_hysteresis)
     {
-        mqtt->publish(String(topic + "get/room_thermostat/hysteresis").c_str(), get_room_thermostat_hysteresis().c_str());
+        mqtt->publish(String(topic + "room_thermostat/hysteresis").c_str(), get_room_thermostat_hysteresis().c_str());
         ecoster_settings_buffer.room_thermostat_hysteresis = ecoster_settings_payload.room_thermostat_hysteresis;
     }
 

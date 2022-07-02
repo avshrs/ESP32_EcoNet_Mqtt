@@ -41,7 +41,7 @@ struct Sensors_Set{
 } ;
 
 Sensors_Get sensors_get[50];
-Sensors_Set sensors_set[10];
+Sensors_Set sensors_set[15];
 
 void init_config()
 {
@@ -93,18 +93,17 @@ sensors_get[44] = {"ecoNet_get_room_thermostat_hysteresis", "Termostat Histereza
 
 sensors_set[0] = {"ecoNet_set_huw_temp_hysteresis", "Termostat Histereza", "huw/temp_hysteresis", "huw/temp_hysteresis", "0", "15", "1", "°C", "mdi:thermometer"};
 sensors_set[1] = {"ecoNet_set_boiler_temp_target", "Piec zadana temperatura", "boiler/temp_target", "boiler/temp_target","20", "75", "1", "°C", "mdi:thermometer"};
-sensors_set[2] = {"ecoNet_set_huw_temp", "Ciepła woda", "huw/temp", "huw/temp", "20", "70", "1",  "°C", "mdi:thermometer"};
-sensors_set[3] = {"ecoNet_set_boiler_max_power_kw", "Palnik Max Moc", "boiler/max_power_kw", "boiler/max_power_kw", "4", "18", "1",  "kW", "mdi:fire"};
-sensors_set[4] = {"ecoNet_set_boiler_min_power_kw", "Palnik Mid Moc", "boiler/mid_power_kw", "boiler/mid_power_kw", "5", "18", "1",  "kW", "mdi:fire"};
-sensors_set[5] = {"ecoNet_set_boiler_min_power_kw", "Palnik Min Moc", "boiler/min_power_kw", "boiler/min_power_kw", "2", "12", "1",  "kW", "mdi:fire"};
-sensors_set[6] = {"ecoNet_set_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_kw", "boiler/max_power_kw", "15", "60", "1",  "%", "mdi:fan"};
-sensors_set[7] = {"ecoNet_set_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_kw", "boiler/mid_power_kw", "15", '35', "1",  "%", "mdi:fan"};
-sensors_set[8] = {"ecoNet_set_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_kw", "boiler/min_power_kw", "15", "35", "1",  "%", "mdi:fan"};
-sensors_set[9] = {"ecoNet_set_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "mixer/temp_target", '15', "65", "1",  "%", "mdi:fan"};
-sensors_set[10] = {"ecoNet_set_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "room_thermostat/night_temp", "15", "25", "0.1",  "%", "mdi:fan"};
-sensors_set[11] = {"ecoNet_set_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "room_thermostat/day_temp", "15", "25", "0.1",  "%", "mdi:fan"};
-sensors_set[12] = {"ecoNet_get_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "huw/temp_target", "20", "70", "1",  "%", "mdi:fan"};
-sensors_set[13] = {"ecoNet_get_huw_temp_min_target", "Cepła woda min zadana temperaturaatura", "huw/temp_min_target", "huw/temp_min", "15", "25", "0.1",  "%", "mdi:fan"};
+sensors_set[2] = {"ecoNet_set_boiler_max_power_kw", "Palnik Max Moc", "boiler/max_power_kw", "boiler/max_power_kw", "4", "18", "1",  "kW", "mdi:fire"};
+sensors_set[3] = {"ecoNet_set_boiler_min_power_kw", "Palnik Mid Moc", "boiler/mid_power_kw", "boiler/mid_power_kw", "5", "18", "1",  "kW", "mdi:fire"};
+sensors_set[4] = {"ecoNet_set_boiler_min_power_kw", "Palnik Min Moc", "boiler/min_power_kw", "boiler/min_power_kw", "2", "12", "1",  "kW", "mdi:fire"};
+sensors_set[5] = {"ecoNet_set_boiler_max_power_fan", "Palnik Max Moc Wiatrak", "boiler/max_power_kw", "boiler/max_power_kw", "15", "60", "1",  "%", "mdi:fan"};
+sensors_set[6] = {"ecoNet_set_boiler_mid_power_fan", "Palnik Mid Moc Wiatrak", "boiler/mid_power_kw", "boiler/mid_power_kw", "15", "35", "1",  "%", "mdi:fan"};
+sensors_set[7] = {"ecoNet_set_boiler_min_power_fan", "Palnik Min Moc Wiatrak", "boiler/min_power_kw", "boiler/min_power_kw", "15", "35", "1",  "%", "mdi:fan"};
+sensors_set[8] = {"ecoNet_set_mixer_temp_target", "Grzejniki Zasilanie zadana temperatura", "mixer/temp_target", "mixer/temp_target", "15", "65", "1",  "%", "mdi:fan"};
+sensors_set[9] = {"ecoNet_set_room_thermostat_night_temp", "Termostat nocna temperatura", "room_thermostat/night_temp", "room_thermostat/night_temp", "15", "25", "0.1",  "%", "mdi:fan"};
+sensors_set[10] = {"ecoNet_set_room_thermostat_day_temp", "Termostat dzienna temperatura", "room_thermostat/day_temp", "room_thermostat/day_temp", "15", "25", "0.1",  "%", "mdi:fan"};
+sensors_set[11] = {"ecoNet_set_huw_temp_target", "Ciepła woda zadana temperatura", "huw/temp_target", "huw/temp_target", "20", "70", "1",  "%", "mdi:fan"};
+sensors_set[12] = {"ecoNet_set_huw_temp_min_target", "Ciepła woda min zadana temperaturaatura", "huw/temp_min_target", "huw/temp_min_target", "20", "69", "1",  "%", "mdi:fan"};
 }
 
 
@@ -119,8 +118,6 @@ md += (String)"\"name\":\""+ (String)sens_name + (String)"\",\"uniq_id\":\""+ (S
 md += (String)entity_settings;
 return md;
 }
-
-
 
 
 void prepare_conf()
@@ -144,12 +141,15 @@ void prepare_conf()
     String C2 = "\"current_temperature_topic\":\"~/state/huw/temp\"," ;
     C2 += "\"mode_command_topic\":\"~/set_state/huw/pump_mode\"," ;
     C2 += "\"mode_state_topic\":\"~/state/huw/pump_mode\"," ;
-    C2 += "\"temperature_high_command_topic\":\"~/set_state/huw/temp\"," ;
+    // C2 += "\"temperature_command_topic\":\"~/set_state/huw/temp\"," ;
+    // C2 += "\"temperature_state_topic\":\"~/state/huw/temp_target\"," ;
+    C2 += "\"temperature_high_command_topic\":\"~/set_state/huw/temp_target\"," ;
     C2 += "\"temperature_high_state_topic\":\"~/state/huw/temp_target\"," ;
-    C2 += "\"temperature_low_command_topic\":\"~/set_state/huw/temp_min\"," ;
+    C2 += "\"temperature_low_command_topic\":\"~/set_state/huw/temp_min_target\"," ;
     C2 += "\"temperature_low_state_topic\":\"~/state/huw/temp_min_target\"," ;
-    C2 += "\"min_temp\":\"45\"," ;
-    C2 += "\"max_temp\":\"60\"," ;
+    
+    C2 += "\"min_temp\":\"40\"," ;
+    C2 += "\"max_temp\":\"70\"," ;
     C2 += "\"temp_step\":\"1\"," ;
     C2 += "\"modes\":[\"heat\", \"auto\",\"off\"]," ;
     C2 += "\"send_if_off\":\"true\"}" ;
@@ -163,7 +163,7 @@ void prepare_conf()
     C3 += "\"temperature_command_topic\":\"~/set_state/mixer/temp\"," ;
     C3 += "\"temperature_state_topic\":\"~/state/mixer/temp_target\"," ;
     C3 += "\"min_temp\":\"35\"," ;
-    C3 += "\"max_temp\":\"65\"," ;
+    C3 += "\"max_temp\":\"70\"," ;
     C3 += "\"temp_step\":\"1\"," ;
     C3 += "\"modes\":[\"heat\", \"auto\",\"off\"]," ;
     C3 += "\"send_if_off\":\"true\"}" ;
@@ -190,9 +190,32 @@ void prepare_conf()
         client.publish(topic.c_str(), s1_.c_str(), true);
     }   
 
-
+    for (int i =0 ; i < 14 ; i++)
+    {
+        String s1 = "\"state_topic\":\"~/state/" + sensors_set[i].state_topic + "\"";
+        s1 += ",\"command_topic\":\"~/set_state/" + sensors_set[i].command_topic + "\"";
+        s1 += ",\"max\":\"" + sensors_set[i].max + "\"";
+        s1 += ",\"min\":\"" + sensors_set[i].min + "\"";
+        s1 += ",\"step\":\"" + sensors_set[i].step + "\"";
+        if (sensors_set[i].unit_of_measurement !="none")
+        {
+            s1 += ",\"unit_of_measurement\":\"" + sensors_set[i].unit_of_measurement +"\"";
+        }
+        if (sensors_set[i].icon !="none")
+        {
+            s1 += ",\"icon\":\""+ sensors_set[i].icon +"\"";
+        }
+        s1 += "}";
+        
+        String s1_ = make_discover("number", "EcoNet_01", "EcoNet_920", sensors_set[i].name, String(sensors_set[i].unique_name+"_01"), s1);
+        String topic = "homeassistant/number/EcoNet_01/" + sensors_set[i].unique_name + "/config";
+        client.publish(topic.c_str(), s1_.c_str(), true);
+    }   
 
 }
+
+
+
 
 void reconnect() 
 {
@@ -230,8 +253,9 @@ void reconnect()
                 client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/max_power_fan");
                 client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/mid_power_fan");
                 client.subscribe("avshrs/devices/EcoNet_01/set_state/boiler/min_power_fan");
-                client.subscribe("avshrs/devices/EcoNet_01/set_state/mixer/temp");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/huw/temp_target");
                 client.subscribe("avshrs/devices/EcoNet_01/set_state/room_thermostat/hysteresis");
+                client.subscribe("avshrs/devices/EcoNet_01/set_state/huw/temp_min_target");
 
                 client.subscribe("avshrs/devices/EcoNet_01/set_state/debug");
 
@@ -297,3 +321,11 @@ void setup_wifi()
     Serial.println(WiFi.localIP());
 }
 
+void wifi_fast_reconnect() 
+{
+    if(WiFi.status() != WL_CONNECTED)
+    {
+    WiFi.disconnect();
+    WiFi.reconnect();
+    }
+}

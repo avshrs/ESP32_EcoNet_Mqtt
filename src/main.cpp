@@ -39,10 +39,17 @@ void callback(char* topic, byte* payload, unsigned int length)
     } 
     else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp") == 0) 
     {
-        econet.set_huw_temp((uint8_t)(uint8_t)st.toInt());
+        econet.set_huw_temp((uint8_t)st.toInt());
     } 
-    
-    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_min") == 0) 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/boiler/temp_target") == 0) 
+    {
+        econet.set_boiler_temp((uint8_t)st.toInt());
+    } 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_target") == 0) 
+    {
+        econet.set_huw_temp((uint8_t)st.toInt());
+    } 
+    else if (strcmp(topic,"avshrs/devices/EcoNet_01/set_state/huw/temp_min_target") == 0) 
     {
         econet.set_huw_min_temp((uint8_t)st.toInt());
     } 
@@ -155,10 +162,7 @@ void loop()
 {
     currentMillis = millis();
 
-    if (!client.connected()) 
-    {
-        reconnect();
-    }
+
     client.loop();
 
     econet.run();
@@ -167,6 +171,11 @@ void loop()
     
     if (currentMillis - previousMillis >= 60000) 
     {
+        wifi_fast_reconnect();
+        if (!client.connected()) 
+        {
+            reconnect();
+        }
         previousMillis = currentMillis;
         wifi_status();
         econet.update_statuses(true);
@@ -174,10 +183,11 @@ void loop()
         client.publish("avshrs/devices/EcoNet_01/status/connected", msg);
         Serial.println("update_statuses");
     }
-    if (currentMillis > 121000 && temporary)
+    if (currentMillis > 121000 && temporary == true)
     {
         temporary = false; 
         econet.set_huw_container_disinfection(true);
+        
     }
 
     
